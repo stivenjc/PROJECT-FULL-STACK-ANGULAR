@@ -1,0 +1,77 @@
+<div class="flex flex-col justify-center items-center bg-gradient-to-r from-blue-800 to-blue-500 lg:h-screen p-6">
+  <div
+    class="grid md:grid-cols-2 items-center gap-y-8 bg-white max-w-7xl w-full shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded-md overflow-hidden">
+    <div
+      class="max-md:order-1 flex flex-col justify-center sm:p-8 p-6 bg-gradient-to-r from-blue-600 to-blue-700 w-full h-full">
+      <div class="max-w-md space-y-12 md:mx-auto">
+        <div>
+          <h4 class="text-white text-lg font-semibold">Create Your Account</h4>
+          <p class="text-[13px] text-slate-200 mt-2">Welcome to our registration page! Get started by creating your
+            account.</p>
+        </div>
+        <div>
+          <h4 class="text-white text-lg font-semibold">Simple & Secure Registration</h4>
+          <p class="text-[13px] text-slate-200 mt-2">Our registration process is designed to be straightforward and
+            secure. We prioritize your privacy and data security.</p>
+        </div>
+        <div>
+          <h4 class="text-white text-lg font-semibold">Terms and Conditions Agreement</h4>
+          <p class="text-[13px] text-slate-200 mt-2">Require users to accept the terms and conditions of your service
+            during registration.</p>
+        </div>
+      </div>
+    </div>
+
+    <form class="sm:p-8 p-6 w-full" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="md:mb-12 mb-8">
+        <h1 class="text-slate-900 text-3xl font-semibold">Register</h1>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div>
+          <label class="text-slate-800 text-sm font-medium mb-2 block">Username</label>
+          <input formControlName="username" type="text"
+                 class="bg-slate-100 w-full text-slate-800 text-sm px-4 py-2.5 rounded-md border border-gray-200 focus:bg-transparent focus:border-black outline-none transition-all"
+                 placeholder="Enter Username" />
+        </div>
+        <div>
+          <label class="text-slate-800 text-sm font-medium mb-2 block">First name</label>
+          <input formControlName="first_name" type="text"
+                 class="bg-slate-100 w-full text-slate-800 text-sm px-4 py-2.5 rounded-md border border-gray-200 focus:bg-transparent focus:border-black outline-none transition-all"
+                 placeholder="Enter first name" />
+        </div>
+        <div>
+          <label class="text-slate-800 text-sm font-medium mb-2 block">Last name</label>
+          <input formControlName="last_name" type="text"
+                 class="bg-slate-100 w-full text-slate-800 text-sm px-4 py-2.5 rounded-md border border-gray-200 focus:bg-transparent focus:border-black outline-none transition-all"
+                 placeholder="Enter last name" />
+        </div>
+        <div>
+          <label class="text-slate-800 text-sm font-medium mb-2 block">Email</label>
+          <input formControlName="email" type="email"
+                 class="bg-slate-100 w-full text-slate-800 text-sm px-4 py-2.5 rounded-md border border-gray-200 focus:bg-transparent focus:border-black outline-none transition-all"
+                 placeholder="Enter email" />
+        </div>
+        <div>
+          <label class="text-slate-800 text-sm font-medium mb-2 block">Password</label>
+          <input formControlName="password" type="password"
+                 class="bg-slate-100 w-full text-slate-800 text-sm px-4 py-2.5 rounded-md border border-gray-200 focus:bg-transparent focus:border-black outline-none transition-all"
+                 placeholder="Enter password" />
+        </div>
+        <div>
+          <label class="text-slate-800 text-sm font-medium mb-2 block">Confirm Password</label>
+          <input formControlName="password2" type="password"
+                 class="bg-slate-100 w-full text-slate-800 text-sm px-4 py-2.5 rounded-md border border-gray-200 focus:bg-transparent focus:border-black outline-none transition-all"
+                 placeholder="Enter confirm password" />
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <button type="submit"
+                class="py-2.5 px-6 text-sm tracking-wide rounded-md text-white font-medium bg-slate-800 hover:bg-slate-900 focus:outline-none transition-all cursor-pointer">
+          Sign up
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
