@@ -1,9 +1,97 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { PostService } from '../../services/posts';
 
 @Component({
   selector: 'app-posts',
-  imports: [],
+  standalone: true,
+  imports: [FormsModule, CommonModule],
   templateUrl: './posts.html',
   styleUrl: './posts.css',
 })
-export class Posts {}
+export class Posts implements OnInit {
+  private postService = inject(PostService);
+  posts = signal<any[]>([]);
+  newPostText = '';
+  newPostImage: File | null = null;
+  newPostImagePreview: string | null = null;
+
+  ngOnInit() {
+    this.loadPosts();
+  }
+
+  loadPosts() {
+    this.postService.getPosts().subscribe({
+      next: (data) => {
+        const result = Array.isArray(data) ? data : (data.results ?? []);
+        this.posts.set(result); // Angular actualiza el DOM automáticamente
+        console.log('POSTS cargados:', this.posts().length);
+      },
+      error: (err) => {
+        console.error('Error cargando los posts:', err);
+      },
+    });
+  }
+
+  toggleLike(post: any) {
+    this.posts.update((lista) =>
+      lista.map((p) =>
+        p.id === post.id
+          ? { ...p, likes: (p.likes || 0) + (p.hasLiked ? -1 : 1), hasLiked: !p.hasLiked }
+          : p,
+      ),
+    );
+  }
+
+  toggleComments(post: any) {
+    this.posts.update((lista) =>
+      lista.map((p) => (p.id === post.id ? { ...p, showComments: !p.showComments } : p)),
+    );
+  }
+
+  // -------- Formulario nuevo post --------
+
+  onImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.newPostImage = input.files[0];
+      // Genera preview local sin subir nada aún
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.newPostImagePreview = e.target?.result as string;
+      };
+      reader.readAsDataURL(this.newPostImage);
+    }
+  }
+
+  removeImage() {
+    this.newPostImage = null;
+    this.newPostImagePreview = null;
+  }
+
+  createPost() {
+    if (!this.newPostText.trim() && !this.newPostImage) return;
+
+    const formData = new FormData();
+    formData.append('text', this.newPostText);
+    if (this.newPostImage) {
+      formData.append('image', this.newPostImage);
+    }
+
+    console.log('Creando post:', this.newPostText, this.newPostImage?.name);
+    this.postService.createPost(formData).subscribe({
+      next: (data) => {
+        console.log('Post creado exitosamente:', data);
+        this.newPostText = '';
+        this.removeImage();
+        this.loadPosts();
+      },
+      error: (err) => {
+        console.error('Error al crear el post:', err);
+        alert('No se pudo crear el post. Intenta de nuevo.');
+      },
+    });
+  }
+}
+

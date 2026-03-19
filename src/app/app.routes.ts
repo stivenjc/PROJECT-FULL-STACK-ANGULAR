@@ -4,8 +4,18 @@ import { Register } from './components/register/register';
 import { Posts } from './components/posts/posts';
 import { authGuard } from './guards/auth-guard';
 
+import { Layout } from './components/layout/layout';
+
 export const routes: Routes = [
-  { path: '', component: Login },
+  { path: 'login', component: Login },
   { path: 'register', component: Register },
-  { path: 'posts', component: Posts, canActivate: [authGuard]},
+  {
+    path: '',
+    component: Layout,
+    canActivate: [authGuard],
+    children: [
+      { path: 'posts', component: Posts },
+      { path: '', redirectTo: 'posts', pathMatch: 'full' }
+    ]
+  },
 ];

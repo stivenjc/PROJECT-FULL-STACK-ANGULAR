@@ -36,7 +36,7 @@ export class Register {
         next: (respuestaApi) => {
           console.log('Registro exitoso. Respuesta del servidor:', respuestaApi);
           alert('¡Cuenta creada correctamente!');
-          this.router.navigate(['/']);
+          this.router.navigate(['/login']);
         },
         error: (errorApi) => {
           console.error('Hubo un error al registrarse:', errorApi);
