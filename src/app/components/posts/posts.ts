@@ -150,5 +150,20 @@ export class Posts implements OnInit {
       },
     });
   }
+
+  deletePost(id: number) {
+    if (confirm('¿Estás seguro de que quieres eliminar este post?')) {
+      this.postService.deletePost(id).subscribe({
+        next: () => {
+          alert('Post eliminado');
+          this.loadPosts();
+        },
+        error: (err) => {
+          console.error('Error al eliminar el post:', err);
+          alert('No se pudo eliminar el post.');
+        },
+      });
+    }
+  }
 }
 
