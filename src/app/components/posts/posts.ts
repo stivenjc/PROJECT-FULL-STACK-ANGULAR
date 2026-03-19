@@ -17,6 +17,12 @@ export class Posts implements OnInit {
   newPostImage: File | null = null;
   newPostImagePreview: string | null = null;
 
+  // Estado de edición
+  editingPostId: number | null = null;
+  editPostText = '';
+  editPostImage: File | null = null;
+  editPostImagePreview: string | null = null;
+
   ngOnInit() {
     this.loadPosts();
   }
@@ -90,6 +96,57 @@ export class Posts implements OnInit {
       error: (err) => {
         console.error('Error al crear el post:', err);
         alert('No se pudo crear el post. Intenta de nuevo.');
+      },
+    });
+  }
+
+  // -------- Edición de post --------
+
+  startEdit(post: any) {
+    this.editingPostId = post.id;
+    this.editPostText = post.text;
+    this.editPostImage = null;
+    this.editPostImagePreview = post.image || null;
+  }
+
+  cancelEdit() {
+    this.editingPostId = null;
+    this.editPostText = '';
+    this.editPostImage = null;
+    this.editPostImagePreview = null;
+  }
+
+  onEditImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.editPostImage = input.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.editPostImagePreview = e.target?.result as string;
+      };
+      reader.readAsDataURL(this.editPostImage);
+    }
+  }
+
+  saveEdit() {
+    if (!this.editingPostId) return;
+
+    const formData = new FormData();
+    formData.append('text', this.editPostText);
+    if (this.editPostImage) {
+      formData.append('image', this.editPostImage);
+    }
+
+    this.postService.updatePost(this.editingPostId, formData).subscribe({
+      next: (data) => {
+        console.log('Post actualizado:', data);
+        alert('Post actualizado exitosamente');
+        this.cancelEdit();
+        this.loadPosts();
+      },
+      error: (err) => {
+        console.error('Error al actualizar el post:', err);
+        alert('No se pudo actualizar el post.');
       },
     });
   }

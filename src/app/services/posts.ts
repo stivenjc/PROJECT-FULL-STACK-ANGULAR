@@ -29,6 +29,10 @@ export class PostService {
     return this.http.post<any>(`${this.apiUrl}posts/`, dataPost, { headers: this.getHeaders() });
   }
 
+  updatePost(postId: number, data: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}posts/${postId}/`, data, { headers: this.getHeaders() });
+  }
+
   // Dar 'Like' a un post
   likePost(postId: number): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}posts/${postId}/like/`, {}, { headers: this.getHeaders() });
