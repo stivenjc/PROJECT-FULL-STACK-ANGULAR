@@ -54,4 +54,16 @@ export class PostService {
       headers: this.getHeaders(),
     });
   }
+
+  updateComment(commentId: number, data: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/coment/${commentId}/`, data, {
+      headers: this.getHeaders(),
+    });
+  }
+
+  deleteComment(commentId: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/coment/${commentId}/`, {
+      headers: this.getHeaders(),
+    });
+  }
 }
