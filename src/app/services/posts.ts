@@ -9,7 +9,7 @@ export class PostService {
   private http = inject(HttpClient);
   private apiUrl = 'http://127.0.0.1:8000/';
 
-  constructor() {}
+  constructor() { }
 
   // Helper method para obtener las cabeceras con el token
   private getHeaders(): HttpHeaders {
@@ -49,8 +49,8 @@ export class PostService {
   }
 
   // Comentar en un post
-  commentPost(postId: number, dataComment: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}posts/${postId}/comments/`, dataComment, {
+  commentPost(dataComment: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/coment/`, dataComment, {
       headers: this.getHeaders(),
     });
   }

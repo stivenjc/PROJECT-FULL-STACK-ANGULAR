@@ -1,0 +1,50 @@
+<!-- Comments Section -->
+<div class="px-4 py-3 bg-slate-50 border-t border-slate-100 space-y-3">
+
+    <!-- View All Comments link mock -->
+    @if (post.comments.length > 0) {
+    <a href="javascript:void(0)" class="text-sm text-slate-500 font-medium hover:underline inline-block mb-1">
+        View previous comments
+    </a>
+    }
+
+    <!-- Existing Comments -->
+    @for (comment of post.comments; track comment.id) {
+    <div class="flex gap-2">
+        <img [src]="comment.created_data.foto" alt="{{comment.created_data.username}}"
+            class="w-8 h-8 rounded-full object-cover shrink-0 mt-0.5">
+        <div>
+            <div
+                class="bg-white rounded-2xl rounded-tl-none px-3 pt-2 pb-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.05)] border border-slate-100">
+                <h4 class="font-bold text-[13px] text-slate-800">{{ comment.created_data.username }}</h4>
+                <p class="text-[14px] text-slate-700 leading-tight mt-0.5">{{ comment.title }}</p>
+            </div>
+            <div class="flex gap-3 mt-1 ml-2 text-[11px] font-semibold text-slate-400">
+                <span class="hover:underline cursor-pointer">Like</span>
+                <span class="hover:underline cursor-pointer">Reply</span>
+                <span class="font-normal">{{ comment.modified | date:'MMM d, y, h:mm a' }}</span>
+            </div>
+        </div>
+    </div>
+    }
+
+
+    <!-- Write a comment input -->
+    <div class="flex gap-2 mt-3 pt-2">
+        <!-- El avatar del usuario logueado iría aquí -->
+        <div class="w-8 h-8 rounded-full bg-slate-200 shrink-0"></div>
+        <div class="flex-1 relative">
+            <input type="text" [(ngModel)]="newCommentText" (keyup.enter)="submitComment(post.id)"
+                class="w-full bg-slate-200/60 rounded-full pl-4 pr-10 py-1.5 text-sm outline-none focus:bg-white focus:ring-1 focus:ring-blue-400 transition-colors"
+                placeholder="Write a comment...">
+            <button (click)="submitComment(post.id)" [disabled]="!newCommentText.trim()"
+                class="absolute right-2 top-1.5 text-blue-600 hover:text-blue-700 disabled:opacity-50 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                    <path
+                        d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+</div>

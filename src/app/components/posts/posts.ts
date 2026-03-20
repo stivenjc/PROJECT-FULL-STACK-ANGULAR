@@ -2,11 +2,12 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PostService } from '../../services/posts';
+import { Comments } from '../comments/comments';
 
 @Component({
   selector: 'app-posts',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, Comments],
   templateUrl: './posts.html',
   styleUrl: './posts.css',
 })
@@ -32,7 +33,7 @@ export class Posts implements OnInit {
       next: (data) => {
         const result = Array.isArray(data) ? data : (data.results ?? []);
         this.posts.set(result); // Angular actualiza el DOM automáticamente
-        console.log('POSTS cargados:', this.posts().length);
+        console.log('POSTS cargados:', this.posts());
       },
       error: (err) => {
         console.error('Error cargando los posts:', err);
