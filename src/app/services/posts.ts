@@ -40,12 +40,18 @@ export class PostService {
   }
 
   // Dar 'Like' a un post
-  likePost(postId: number): Observable<any> {
+  likePost(dataLike: any): Observable<any> {
     return this.http.post<any>(
-      `${this.apiUrl}posts/${postId}/like/`,
-      {},
+      `${this.apiUrl}/likes/`,
+      dataLike,
       { headers: this.getHeaders() },
     );
+  }
+
+  disLikePost(postId: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/likes/delete-by-post/${postId}/`, {
+      headers: this.getHeaders()
+    });
   }
 
   // Comentar en un post

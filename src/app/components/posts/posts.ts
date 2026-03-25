@@ -1,39 +1,64 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PostService } from '../../services/posts';
 import { Comments } from '../comments/comments';
+import { Likes } from '../likes/likes';
 
 @Component({
   selector: 'app-posts',
   standalone: true,
-  imports: [FormsModule, CommonModule, Comments],
+  imports: [FormsModule, CommonModule, Comments, Likes],
   templateUrl: './posts.html',
   styleUrl: './posts.css',
 })
-export class Posts implements OnInit {
-  private postService = inject(PostService);
+export class Posts implements OnInit, OnDestroy {
   posts = signal<any[]>([]);
+  private postService = inject(PostService);
+  private pollingInterval: any;
+
+  // Estados para creación de post
   newPostText = '';
   newPostImage: File | null = null;
   newPostImagePreview: string | null = null;
 
-  // Estado de edición
-  editingPostId: number | null = null;
+  // Estados para edición
+  editingPostId = signal<number | null>(null);
   editPostText = '';
   editPostImage: File | null = null;
   editPostImagePreview: string | null = null;
 
   ngOnInit() {
-    this.loadPosts();
+    this.loadPosts(); // Carga inicial
+    // Iniciamos el polling cada 30 segundos
+    this.pollingInterval = setInterval(() => {
+      this.loadPosts();
+    }, 30000);
+  }
+
+  ngOnDestroy() {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+    }
   }
 
   loadPosts() {
     this.postService.getPosts().subscribe({
       next: (data) => {
         const result = Array.isArray(data) ? data : (data.results ?? []);
-        this.posts.set(result); // Angular actualiza el DOM automáticamente
-        console.log('POSTS cargados:', this.posts());
+
+        // Sincronizamos los datos nuevos manteniendo el estado de 'showComments'
+        this.posts.update(currentPosts => {
+          return result.map((newP: any) => {
+            const oldP = currentPosts.find((p: any) => p.id === newP.id);
+            return {
+              ...newP,
+              showComments: oldP ? oldP.showComments : false
+            };
+          });
+        });
+
+        console.log('Feed actualizado (Polling)');
       },
       error: (err) => {
         console.error('Error cargando los posts:', err);
@@ -41,15 +66,7 @@ export class Posts implements OnInit {
     });
   }
 
-  toggleLike(post: any) {
-    this.posts.update((lista) =>
-      lista.map((p) =>
-        p.id === post.id
-          ? { ...p, likes: (p.likes || 0) + (p.hasLiked ? -1 : 1), hasLiked: !p.hasLiked }
-          : p,
-      ),
-    );
-  }
+  // Métodos del Post (el de Like se movió al componente Likes)
 
   toggleComments(post: any) {
     this.posts.update((lista) =>
@@ -104,14 +121,14 @@ export class Posts implements OnInit {
   // -------- Edición de post --------
 
   startEdit(post: any) {
-    this.editingPostId = post.id;
+    this.editingPostId.set(post.id);
     this.editPostText = post.text;
     this.editPostImage = null;
     this.editPostImagePreview = post.image || null;
   }
 
   cancelEdit() {
-    this.editingPostId = null;
+    this.editingPostId.set(null);
     this.editPostText = '';
     this.editPostImage = null;
     this.editPostImagePreview = null;
@@ -130,7 +147,8 @@ export class Posts implements OnInit {
   }
 
   saveEdit() {
-    if (!this.editingPostId) return;
+    const currentId = this.editingPostId();
+    if (!currentId) return;
 
     const formData = new FormData();
     formData.append('text', this.editPostText);
@@ -138,7 +156,7 @@ export class Posts implements OnInit {
       formData.append('image', this.editPostImage);
     }
 
-    this.postService.updatePost(this.editingPostId, formData).subscribe({
+    this.postService.updatePost(currentId, formData).subscribe({
       next: (data) => {
         console.log('Post actualizado:', data);
         alert('Post actualizado exitosamente');
