@@ -19,9 +19,10 @@ export class PostService {
     });
   }
 
-  // Obtener todos los posts
-  getPosts(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}posts/`, { headers: this.getHeaders() });
+  // Obtener todos los posts (opcionalmente filtrados por amigos)
+  getPosts(friendsOnly: boolean = false): Observable<any> {
+    const url = friendsOnly ? `${this.apiUrl}posts/?friends_only=true` : `${this.apiUrl}posts/`;
+    return this.http.get<any>(url, { headers: this.getHeaders() });
   }
 
   // Crear un nuevo post

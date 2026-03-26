@@ -40,7 +40,12 @@ export class FriendsComponent implements OnInit {
 
     // Solicitudes RECIBIDAS
     this.usuarioService.getFriendRequests().subscribe({
-      next: (data: any) => this.pendingRequests.set(data.results || data),
+      next: (data: any) => {
+        const results = data.results || data;
+        this.pendingRequests.set(results);
+        // === ACTUALIZAR ESTADO GLOBAL ===
+        this.usuarioService.pendingRequestsCount.set(results.length);
+      },
       error: (err: any) => console.error('Error cargando solicitudes:', err)
     });
 

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -8,6 +8,10 @@ import { Observable } from 'rxjs';
 export class Usuario {
   private http = inject(HttpClient);
   private apiUrl = 'http://127.0.0.1:8000/';
+
+  // === GLOBAL STATE (STORE) ===
+  // Este es el numerito que compartiremos entre el Sidebar y la página de Amigos
+  pendingRequestsCount = signal<number>(0);
 
   getHeaders() {
     const token = localStorage.getItem('token');

@@ -43,7 +43,8 @@ export class Posts implements OnInit, OnDestroy {
   }
 
   loadPosts() {
-    this.postService.getPosts().subscribe({
+    // Solo vemos post de amigos como siguiente paso solicitado
+    this.postService.getPosts(true).subscribe({
       next: (data) => {
         const result = Array.isArray(data) ? data : (data.results ?? []);
 
