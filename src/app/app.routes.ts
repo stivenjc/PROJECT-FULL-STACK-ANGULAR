@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { Login } from './components/login/login';
 import { Register } from './components/register/register';
 import { Posts } from './components/posts/posts';
+import { FriendsComponent } from './components/friends/friends';
 import { authGuard } from './guards/auth-guard';
 
 import { Layout } from './components/layout/layout';
@@ -15,6 +16,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: 'posts', component: Posts },
+      { path: 'friends', component: FriendsComponent },
       { path: '', redirectTo: 'posts', pathMatch: 'full' }
     ]
   },

@@ -30,6 +30,9 @@ export class Login {
         next: (response) => {
           alert('Login correcto!');
           localStorage.setItem('token', response.token);
+          localStorage.setItem('user_id', response.user.id);
+          localStorage.setItem('user_username', response.user.username);
+          localStorage.setItem('user_email', response.user.email);
           this.router.navigate(['/posts']);
         },
         error: (err) => {
