@@ -31,7 +31,7 @@
 
       <!-- Profile Avatar -->
       <div class="h-9 w-9 rounded-full bg-slate-200 border-2 border-slate-300 overflow-hidden cursor-pointer ml-2">
-        <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Avatar"
+        <img [src]="usuarioService.getPhotoUrl(usuarioService.currentUser()?.foto)" alt="Avatar"
           class="w-full h-full object-cover">
       </div>
     </div>
@@ -58,7 +58,7 @@
             </svg>
             Feed / Posts
           </a>
-          <a href="javascript:void(0)"
+          <a routerLink="/profile" routerLinkActive="bg-blue-50 text-blue-700"
             class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-lg font-medium transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
               stroke="currentColor" class="w-5 h-5">

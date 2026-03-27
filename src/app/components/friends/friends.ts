@@ -28,11 +28,9 @@ export class FriendsComponent implements OnInit {
     this.loadAll();
   }
 
-  // Ayudante para formatear la URL de la foto
+  // Ayudante para formatear la URL de la foto (usamos el global del servicio)
   getPhotoUrl(photo: string | null): string {
-    if (!photo) return '';
-    if (photo.startsWith('http')) return photo;
-    return `${this.baseUrl}${photo.startsWith('/') ? '' : '/'}${photo}`;
+    return this.usuarioService.getPhotoUrl(photo);
   }
 
   loadAll() {

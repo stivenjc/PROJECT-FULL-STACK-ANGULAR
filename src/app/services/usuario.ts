@@ -10,14 +10,28 @@ export class Usuario {
   private apiUrl = 'http://127.0.0.1:8000/';
 
   // === GLOBAL STATE (STORE) ===
-  // Este es el numerito que compartiremos entre el Sidebar y la página de Amigos
   pendingRequestsCount = signal<number>(0);
+  currentUser = signal<any>(null); // Guardaremos aquí los datos del usuario logueado
 
   getHeaders() {
     const token = localStorage.getItem('token');
     return new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
+  }
+
+  // Actualizar datos del usuario (incluyendo foto)
+  updateUser(userId: number, data: any): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}users/${userId}/`, data, {
+      headers: this.getHeaders(),
+    });
+  }
+
+  // Ayudante global para formatear la URL de la foto
+  getPhotoUrl(photo: string | null): string {
+    if (!photo) return 'https://ui-avatars.com/api/?name=User';
+    if (photo.startsWith('http')) return photo;
+    return `http://127.0.0.1:8000${photo.startsWith('/') ? '' : '/'}${photo}`;
   }
 
   registrarUsuario(dataUser: any): Observable<any> {
