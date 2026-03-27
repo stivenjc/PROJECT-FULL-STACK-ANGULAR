@@ -11,7 +11,6 @@ import { Router } from '@angular/router';
 })
 export class Register {
   registerForm: FormGroup;
-  // Inyectamos el servicio
   private usuarioService = inject(Usuario);
   private router = inject(Router);
 
@@ -29,12 +28,9 @@ export class Register {
   onSubmit() {
     if (this.registerForm.valid) {
       const datosDelFormulario = this.registerForm.value;
-      console.log('¡Datos listos para enviar a la API!', datosDelFormulario);
 
-      // Llamamos al método de nuestro servicio y enviamos los datos
       this.usuarioService.registrarUsuario(datosDelFormulario).subscribe({
         next: (respuestaApi) => {
-          console.log('Registro exitoso. Respuesta del servidor:', respuestaApi);
           alert('¡Cuenta creada correctamente!');
           this.router.navigate(['/login']);
         },
@@ -44,7 +40,6 @@ export class Register {
         },
       });
     } else {
-      console.log('El formulario tiene errores o le faltan campos.');
       this.registerForm.markAllAsTouched();
     }
   }

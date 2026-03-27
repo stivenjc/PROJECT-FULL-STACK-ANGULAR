@@ -11,21 +11,18 @@ export class PostService {
 
   constructor() { }
 
-  // Helper method para obtener las cabeceras con el token
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
     return new HttpHeaders({
-      Authorization: `Bearer ${token}`, // O el formato que use tu backend, ej: 'Token ${token}'
+      Authorization: `Bearer ${token}`,
     });
   }
 
-  // Obtener todos los posts (opcionalmente filtrados por amigos)
   getPosts(friendsOnly: boolean = false): Observable<any> {
     const url = friendsOnly ? `${this.apiUrl}posts/?friends_only=true` : `${this.apiUrl}posts/`;
     return this.http.get<any>(url, { headers: this.getHeaders() });
   }
 
-  // Crear un nuevo post
   createPost(dataPost: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}posts/`, dataPost, { headers: this.getHeaders() });
   }
@@ -40,7 +37,6 @@ export class PostService {
     return this.http.delete<any>(`${this.apiUrl}posts/${id}/`, { headers: this.getHeaders() });
   }
 
-  // Dar 'Like' a un post
   likePost(dataLike: any): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrl}/likes/`,
@@ -55,7 +51,6 @@ export class PostService {
     });
   }
 
-  // Comentar en un post
   commentPost(dataComment: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/coment/`, dataComment, {
       headers: this.getHeaders(),

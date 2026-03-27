@@ -36,9 +36,7 @@ export class Login {
           this.router.navigate(['/posts']);
         },
         error: (err) => {
-          // err.error contiene la respuesta del backend (ej: en Django DRF suele venir como { detail: "..." } o en otras APIs { message: "..." })
           this.errorMessage = err.error?.detail || err.error?.message || 'Error al iniciar sesión. Verifica tus credenciales.';
-          console.error('- Error de login detectado -', err);
         }
       });
     } else {

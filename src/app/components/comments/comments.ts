@@ -14,16 +14,12 @@ export class Comments implements OnChanges {
   @Input({ required: true }) post: any;
   private postService = inject(PostService);
 
-  // 1. Definimos un Signal para los comentarios.
-  // Esto permite que Angular sepa exactamente cuándo cambia la lista.
   comments = signal<any[]>([]);
   newCommentText = '';
 
-  // Estados para la edición
   editingCommentId = signal<number | null>(null);
   editCommentText = '';
 
-  // Sincronizamos el signal cuando cambie el post (el Input)
   ngOnChanges(changes: SimpleChanges) {
     if (changes['post'] && this.post) {
       this.comments.set(this.post.comments || []);
@@ -40,10 +36,8 @@ export class Comments implements OnChanges {
 
     this.postService.commentPost(commentData).subscribe({
       next: (newComment) => {
-        // Actualizamos el Signal (esto dispara el cambio en el DOM de una)
         this.comments.update(lista => [...lista, newComment]);
 
-        // También mantenemos el objeto original sincronizado
         setTimeout(() => {
           if (this.post.comments) {
             this.post.comments.push(newComment);
@@ -59,7 +53,6 @@ export class Comments implements OnChanges {
     });
   }
 
-  // Lógica para Editar Comentarios
   startEditComment(comment: any) {
     this.editingCommentId.set(comment.id);
     this.editCommentText = comment.title;
@@ -76,12 +69,10 @@ export class Comments implements OnChanges {
     const data = { title: this.editCommentText };
     this.postService.updateComment(comment.id, data).subscribe({
       next: (updatedComment) => {
-        // 1. Actualizamos el Signal (DOM local)
         this.comments.update(lista =>
           lista.map(c => c.id === comment.id ? { ...c, title: updatedComment.title } : c)
         );
 
-        // 2. Sincronizamos con el objeto post original del padre
         setTimeout(() => {
           if (this.post.comments) {
             const index = this.post.comments.findIndex((c: any) => c.id === comment.id);
@@ -100,16 +91,13 @@ export class Comments implements OnChanges {
     });
   }
 
-  // Lógica para Eliminar Comentarios
   deleteComment(commentId: number) {
     if (!confirm('¿Estás seguro de que quieres eliminar este comentario?')) return;
 
     this.postService.deleteComment(commentId).subscribe({
       next: () => {
-        // 1. Eliminamos del signal (DOM local del hijo)
         this.comments.update(lista => lista.filter(c => c.id !== commentId));
 
-        // 2. Sincronizamos con el objeto original del padre (con setTimeout para evitar el error NG0100)
         setTimeout(() => {
           if (this.post.comments) {
             this.post.comments = this.post.comments.filter((c: any) => c.id !== commentId);
