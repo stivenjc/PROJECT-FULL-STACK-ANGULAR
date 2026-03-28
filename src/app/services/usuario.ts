@@ -46,6 +46,12 @@ export class Usuario {
     });
   }
 
+  getUserById(userId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}users/${userId}/`, {
+      headers: this.getHeaders(),
+    });
+  }
+
   getFriendRequests(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}friend/?friend=false&receiver=${localStorage.getItem('user_id')}`, {
       headers: this.getHeaders(),

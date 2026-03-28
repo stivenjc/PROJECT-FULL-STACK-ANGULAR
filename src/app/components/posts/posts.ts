@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PostService } from '../../services/posts';
 import { Usuario } from '../../services/usuario';
@@ -9,7 +10,7 @@ import { Likes } from '../likes/likes';
 @Component({
   selector: 'app-posts',
   standalone: true,
-  imports: [FormsModule, CommonModule, Comments, Likes],
+  imports: [FormsModule, CommonModule, Comments, Likes, RouterLink],
   templateUrl: './posts.html',
   styleUrl: './posts.css',
 })

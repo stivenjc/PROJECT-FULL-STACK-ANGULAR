@@ -49,12 +49,12 @@
 
     <header class="p-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600">
+        <div [routerLink]="['/profile', post.created_data.id]" class="p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 cursor-pointer">
           <div class="bg-white p-[2px] rounded-full">
             <img [src]="usuarioService.getPhotoUrl(post.created_data.foto)" class="w-8 h-8 rounded-full object-cover">
           </div>
         </div>
-        <span class="font-bold text-sm text-slate-900 cursor-pointer hover:text-slate-500 transition-colors">
+        <span [routerLink]="['/profile', post.created_data.id]" class="font-bold text-sm text-slate-900 cursor-pointer hover:text-slate-500 transition-colors">
           {{ post.created_data.username }}
         </span>
         <span class="text-slate-400 text-xs font-medium">• {{ post.created | date:'shortDate' }}</span>
@@ -146,7 +146,7 @@
       <div class="space-y-1">
         <p class="text-sm font-bold text-slate-900">{{ post.likes_count || 0 }} Me gusta</p>
         <p class="text-sm text-slate-800 leading-snug">
-          <span class="font-extrabold mr-2">{{ post.created_data.username }}</span>
+          <span [routerLink]="['/profile', post.created_data.id]" class="font-extrabold mr-2 cursor-pointer hover:underline">{{ post.created_data.username }}</span>
           {{ post.text }}
         </p>
 

@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { Usuario } from '../../services/usuario';
 import { PostService } from '../../services/posts';
 
@@ -13,28 +14,52 @@ import { PostService } from '../../services/posts';
 export class ProfileComponent implements OnInit {
   private usuarioService = inject(Usuario);
   private postService = inject(PostService);
+  private route = inject(ActivatedRoute);
 
-  user = this.usuarioService.currentUser;
+  user = signal<any>(null);
   myPosts = signal<any[]>([]);
   loading = signal(true);
+  isMyProfile = signal(true);
 
   ngOnInit() {
-    this.loadUserData();
-    this.loadMyPosts();
+    this.route.params.subscribe(params => {
+      const userId = params['id'];
+      if (userId) {
+        this.isMyProfile.set(userId == localStorage.getItem('user_id'));
+        this.loadOtherUserData(Number(userId));
+        this.loadPosts(userId);
+      } else {
+        this.isMyProfile.set(true);
+        this.loadCurrentUserData();
+        this.loadPosts(localStorage.getItem('user_id'));
+      }
+    });
   }
 
-  loadUserData() {
+  loadCurrentUserData() {
     const userId = localStorage.getItem('user_id');
-    if (userId && !this.user()) {
-      this.usuarioService.getUsers().subscribe(users => {
-        const list = Array.isArray(users) ? users : users.results;
-        const currentUser = list.find((u: any) => u.id == userId);
-        this.usuarioService.currentUser.set(currentUser);
+    if (this.usuarioService.currentUser()) {
+      this.user.set(this.usuarioService.currentUser());
+    } else if (userId) {
+      this.usuarioService.getUserById(Number(userId)).subscribe(userData => {
+        this.user.set(userData);
+        this.usuarioService.currentUser.set(userData);
       });
     }
   }
 
+  loadOtherUserData(userId: number) {
+    this.loading.set(true);
+    this.usuarioService.getUserById(userId).subscribe({
+      next: (userData) => {
+        this.user.set(userData);
+      },
+      error: (err) => console.error('Error al cargar usuario:', err)
+    });
+  }
+
   onFileSelected(event: any) {
+    if (!this.isMyProfile()) return;
     const file = event.target.files[0];
     if (file) {
       this.uploadPhoto(file);
@@ -48,14 +73,16 @@ export class ProfileComponent implements OnInit {
 
     this.usuarioService.updateUser(userId, formData).subscribe({
       next: (updatedUser) => {
+        this.user.set(updatedUser);
         this.usuarioService.currentUser.set(updatedUser);
       },
       error: (err) => console.error('Error al subir foto:', err)
     });
   }
 
-  loadMyPosts() {
-    const userId = localStorage.getItem('user_id');
+  loadPosts(userId: string | null) {
+    if (!userId) return;
+    this.loading.set(true);
     this.postService.getPosts().subscribe(data => {
       const list = Array.isArray(data) ? data : data.results;
       this.myPosts.set(list.filter((p: any) => p.created_by == userId));

@@ -23,7 +23,7 @@
     
     <div class="divide-y divide-slate-50">
       @for (user of users(); track user.id) {
-      <div class="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer group">
+      <div [routerLink]="['/profile', user.id]" class="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer group">
         <div class="flex items-center gap-3">
           <div class="relative">
             <img [src]="getPhotoUrl(user.foto) || 'https://ui-avatars.com/api/?name=' + user.username"

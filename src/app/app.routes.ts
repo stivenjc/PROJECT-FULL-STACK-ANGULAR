@@ -19,6 +19,7 @@ export const routes: Routes = [
       { path: 'posts', component: Posts },
       { path: 'friends', component: FriendsComponent },
       { path: 'profile', component: ProfileComponent },
+      { path: 'profile/:id', component: ProfileComponent },
       { path: '', redirectTo: 'posts', pathMatch: 'full' }
     ]
   },
