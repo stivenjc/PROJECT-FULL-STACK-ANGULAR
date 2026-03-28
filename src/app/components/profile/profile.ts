@@ -90,6 +90,20 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  togglePrivacy() {
+    if (!this.isMyProfile()) return;
+    const userId = Number(localStorage.getItem('user_id'));
+    const newStatus = !this.user().private;
+
+    this.usuarioService.updateUser(userId, { private: newStatus }).subscribe({
+      next: (updatedUser) => {
+        this.user.set(updatedUser);
+        this.usuarioService.currentUser.set(updatedUser);
+      },
+      error: (err) => console.error('Error al cambiar privacidad:', err)
+    });
+  }
+
   getPhotoUrl(photo: string | null): string {
     return this.usuarioService.getPhotoUrl(photo);
   }
