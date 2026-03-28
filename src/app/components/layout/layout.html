@@ -1,54 +1,55 @@
 <div class="h-screen w-full bg-white flex overflow-hidden">
 
   <aside class="w-64 h-full border-r border-slate-200 hidden md:flex flex-col px-3 py-8 shrink-0">
-    
+
     <div class="px-3 mb-10 cursor-pointer">
       <h1 class="text-2xl font-bold tracking-tighter italic font-serif">SocialApp</h1>
     </div>
 
     <nav class="flex-1 space-y-2">
       <a routerLink="/posts" routerLinkActive="font-extrabold" [routerLinkActiveOptions]="{exact: true}"
-         class="flex items-center gap-4 px-3 py-3 text-slate-900 hover:bg-slate-50 rounded-xl transition-all group">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 group-hover:scale-110 transition-transform">
-          <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        class="flex items-center gap-4 px-3 py-3 text-slate-900 hover:bg-slate-50 rounded-xl transition-all group">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-7 h-7 group-hover:scale-110 transition-transform">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
         </svg>
         <span class="text-base">Inicio</span>
       </a>
 
       <a routerLink="/friends" routerLinkActive="font-extrabold"
-         class="flex items-center justify-between px-3 py-3 text-slate-900 hover:bg-slate-50 rounded-xl transition-all group">
+        class="flex items-center justify-between px-3 py-3 text-slate-900 hover:bg-slate-50 rounded-xl transition-all group">
         <div class="flex items-center gap-4">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 group-hover:scale-110 transition-transform">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-7 h-7 group-hover:scale-110 transition-transform">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
           </svg>
           <span class="text-base">Buscador</span>
         </div>
         @if (usuarioService.pendingRequestsCount() > 0) {
-          <span class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
-            {{ usuarioService.pendingRequestsCount() }}
-          </span>
+        <span class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+          {{ usuarioService.pendingRequestsCount() }}
+        </span>
         }
       </a>
 
-      <a href="javascript:void(0)" class="flex items-center gap-4 px-3 py-3 text-slate-900 hover:bg-slate-50 rounded-xl transition-all group">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 group-hover:scale-110 transition-transform">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-        </svg>
-        <span class="text-base">Crear</span>
-      </a>
-
       <a routerLink="/profile" routerLinkActive="font-extrabold"
-         class="flex items-center gap-4 px-3 py-3 text-slate-900 hover:bg-slate-50 rounded-xl transition-all group">
-        <div class="w-7 h-7 rounded-full border-2 border-slate-900 overflow-hidden group-hover:scale-110 transition-transform">
-          <img [src]="usuarioService.getPhotoUrl(usuarioService.currentUser()?.foto)" class="w-full h-full object-cover">
+        class="flex items-center gap-4 px-3 py-3 text-slate-900 hover:bg-slate-50 rounded-xl transition-all group">
+        <div
+          class="w-7 h-7 rounded-full border-2 border-slate-900 overflow-hidden group-hover:scale-110 transition-transform">
+          <img [src]="usuarioService.getPhotoUrl(usuarioService.currentUser()?.foto)"
+            class="w-full h-full object-cover">
         </div>
         <span class="text-base">Perfil</span>
       </a>
     </nav>
 
     <div class="mt-auto">
-      <button class="flex items-center gap-4 px-3 py-3 w-full text-slate-900 hover:bg-slate-50 rounded-xl transition-all group">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
+      <button
+        class="flex items-center gap-4 px-3 py-3 w-full text-slate-900 hover:bg-slate-50 rounded-xl transition-all group">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-7 h-7">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
         </svg>
         <span class="text-base">Más</span>
@@ -64,7 +65,8 @@
 
   <aside class="hidden xl:flex w-[320px] h-full flex-col px-8 py-12 shrink-0">
     <div class="flex items-center gap-4 mb-6">
-      <img [src]="usuarioService.getPhotoUrl(usuarioService.currentUser()?.foto)" class="w-12 h-12 rounded-full object-cover border border-slate-100">
+      <img [src]="usuarioService.getPhotoUrl(usuarioService.currentUser()?.foto)"
+        class="w-12 h-12 rounded-full object-cover border border-slate-100">
       <div>
         <p class="font-bold text-sm text-slate-900">{{ usuarioService.currentUser()?.username }}</p>
         <p class="text-slate-500 text-sm">Tú cuenta</p>

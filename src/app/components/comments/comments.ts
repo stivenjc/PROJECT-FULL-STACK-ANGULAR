@@ -2,6 +2,8 @@ import { Component, Input, inject, signal, OnChanges, SimpleChanges } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PostService } from '../../services/posts';
+import { Usuario } from '../../services/usuario';
+
 
 @Component({
   selector: 'app-comments',
@@ -13,6 +15,7 @@ import { PostService } from '../../services/posts';
 export class Comments implements OnChanges {
   @Input({ required: true }) post: any;
   private postService = inject(PostService);
+  public usuarioService = inject(Usuario);
 
   comments = signal<any[]>([]);
   newCommentText = '';
