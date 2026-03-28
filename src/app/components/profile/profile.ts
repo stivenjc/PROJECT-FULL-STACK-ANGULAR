@@ -1,13 +1,16 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { Usuario } from '../../services/usuario';
 import { PostService } from '../../services/posts';
+import { Comments } from '../comments/comments';
+import { Likes } from '../likes/likes';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, Comments, Likes],
   templateUrl: './profile.html',
   styleUrl: './profile.css'
 })
@@ -20,6 +23,11 @@ export class ProfileComponent implements OnInit {
   myPosts = signal<any[]>([]);
   loading = signal(true);
   isMyProfile = signal(true);
+
+  // Modal and Edit state
+  selectedPost = signal<any>(null);
+  isEditing = signal(false);
+  editPostText = '';
 
   ngOnInit() {
     this.route.params.subscribe(params => {
@@ -106,5 +114,54 @@ export class ProfileComponent implements OnInit {
 
   getPhotoUrl(photo: string | null): string {
     return this.usuarioService.getPhotoUrl(photo);
+  }
+
+  // Modal Methods
+  openPost(post: any) {
+    this.selectedPost.set(post);
+    this.isEditing.set(false);
+    this.editPostText = post.text;
+    document.body.style.overflow = 'hidden'; // Prevent scrolling
+  }
+
+  closePost() {
+    this.selectedPost.set(null);
+    this.isEditing.set(false);
+    document.body.style.overflow = 'auto'; // Restore scrolling
+  }
+
+  deletePost(postId: number) {
+    if (confirm('¿Estás seguro de que deseas eliminar esta publicación?')) {
+      this.postService.deletePost(postId).subscribe({
+        next: () => {
+          this.myPosts.update(posts => posts.filter(p => p.id !== postId));
+          this.closePost();
+        },
+        error: (err) => console.error('Error al eliminar post:', err)
+      });
+    }
+  }
+
+  startEdit() {
+    this.isEditing.set(true);
+  }
+
+  cancelEdit() {
+    this.isEditing.set(false);
+    this.editPostText = this.selectedPost().text;
+  }
+
+  saveEdit() {
+    const postId = this.selectedPost().id;
+    this.postService.updatePost(postId, { text: this.editPostText }).subscribe({
+      next: (updatedPost) => {
+        // Update in myPosts list
+        this.myPosts.update(posts => posts.map(p => p.id === postId ? { ...p, ...updatedPost } : p));
+        // Update selected post
+        this.selectedPost.set({ ...this.selectedPost(), ...updatedPost });
+        this.isEditing.set(false);
+      },
+      error: (err) => console.error('Error al actualizar post:', err)
+    });
   }
 }

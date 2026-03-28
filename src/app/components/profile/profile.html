@@ -100,11 +100,13 @@
       <p class="text-xs text-slate-300">Tus fotos aparecerán aquí cuando publiques algo.</p>
     </div>
     } @else {
-    @if (user()?.private && user()?.is_freind || !user()?.private || isMyProfile()) {
+    @if (isMyProfile() || !user()?.private || (user()?.private && user()?.is_friend)) {
     @for (post of myPosts(); track post.id) {
-    <div class="relative group aspect-square bg-slate-100 overflow-hidden cursor-pointer">
+    <div (click)="openPost(post)"
+      class="relative group aspect-square bg-slate-100 overflow-hidden cursor-pointer rounded-sm">
       @if (post.image) {
-      <img [src]="getPhotoUrl(post.image)" class="w-full h-full object-cover">
+      <img [src]="getPhotoUrl(post.image)"
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
       } @else {
       <div
         class="w-full h-full flex items-center justify-center p-4 text-[10px] sm:text-sm text-slate-400 text-center italic">
@@ -133,7 +135,7 @@
     </div>
     }
     } @else {
-    <div class="col-span-3 flex flex-col items-center justify-center py-20 bg-slate-50 rounded-xl">
+    <div class="col-span-3 flex flex-col items-center justify-center py-20 bg-slate-50 rounded-xl w-full">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
         class="w-12 h-12 text-slate-400 mb-4">
         <path stroke-linecap="round" stroke-linejoin="round"
@@ -145,5 +147,117 @@
     }
     }
   </div>
+
+  @if (selectedPost()) {
+  <div
+    class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-10 animate-in fade-in zoom-in duration-300">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" (click)="closePost()"></div>
+
+    <!-- Modal Content -->
+    <div
+      class="relative w-full max-w-6xl bg-white rounded-xl overflow-hidden shadow-2xl flex flex-col lg:flex-row h-full max-h-[90vh]">
+
+      <!-- Close Button Mobile -->
+      <button (click)="closePost()"
+        class="absolute top-4 right-4 z-10 p-2 bg-black/20 hover:bg-black/40 text-white rounded-full lg:hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"
+          class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <!-- Left: Image Section -->
+      <div class="flex-1 bg-black flex items-center justify-center overflow-hidden h-[40%] lg:h-full">
+        @if (selectedPost().image) {
+        <img [src]="getPhotoUrl(selectedPost().image)" class="w-full h-full object-contain">
+        } @else {
+        <div class="text-white text-lg italic p-12 text-center">"{{ selectedPost().text }}"</div>
+        }
+      </div>
+
+      <!-- Right: Details Section -->
+      <div class="w-full lg:w-[450px] flex flex-col bg-white h-[60%] lg:h-full">
+
+        <!-- Header -->
+        <header class="p-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+          <div class="flex items-center gap-3">
+            <img [src]="getPhotoUrl(user()?.foto)" class="w-8 h-8 rounded-full object-cover">
+            <span class="font-bold text-sm text-slate-900">{{ user()?.username }}</span>
+          </div>
+
+          @if (isMyProfile()) {
+          <div class="flex items-center gap-1">
+            <button (click)="isEditing() ? cancelEdit() : startEdit()"
+              class="p-2 text-slate-400 hover:text-blue-500 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 20H5.25A2.25 2.25 0 0 1 3 17.75V7.25A2.25 2.25 0 0 1 5.25 5H10" />
+              </svg>
+            </button>
+            <button (click)="deletePost(selectedPost().id)"
+              class="p-2 text-slate-400 hover:text-red-500 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+              </svg>
+            </button>
+          </div>
+          }
+        </header>
+
+        <!-- Content (Scrollable) -->
+        <div class="flex-1 overflow-y-auto p-4 custom-scrollbar">
+          @if (isEditing()) {
+          <div class="space-y-4 animate-in fade-in duration-300">
+            <textarea [(ngModel)]="editPostText" rows="4"
+              class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-blue-500 transition-all resize-none"></textarea>
+            <div class="flex justify-end gap-2">
+              <button (click)="cancelEdit()"
+                class="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-colors">Cancelar</button>
+              <button (click)="saveEdit()"
+                class="px-4 py-2 text-xs font-bold bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors shadow-sm">Guardar
+                cambios</button>
+            </div>
+          </div>
+          } @else {
+          <div class="flex gap-3 mb-6">
+            <img [src]="getPhotoUrl(user()?.foto)" class="w-8 h-8 rounded-full object-cover shrink-0">
+            <div class="text-sm">
+              <span class="font-bold mr-2">{{ user()?.username }}</span>
+              <span class="text-slate-800 leading-snug">{{ selectedPost().text }}</span>
+              <p class="text-[10px] text-slate-400 font-bold uppercase mt-2 tracking-tighter">{{ selectedPost().created
+                | date:'longDate' }}</p>
+            </div>
+          </div>
+          }
+
+          <!-- Comments Component -->
+          <div class="border-t border-slate-50 pt-4">
+            <app-comments [post]="selectedPost()"></app-comments>
+          </div>
+        </div>
+
+        <!-- Footer: Likes and Action -->
+        <footer class="p-4 border-t border-slate-100 bg-white shrink-0">
+          <app-likes [post]="selectedPost()"></app-likes>
+          <p class="text-xs font-bold text-slate-900 mt-2">{{ selectedPost().likes_count || 0 }} Me gusta</p>
+        </footer>
+      </div>
+
+      <!-- Close Button Desktop -->
+      <button (click)="closePost()"
+        class="absolute -top-12 -right-12 p-3 text-white/80 hover:text-white transition-colors hidden lg:block">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"
+          class="w-8 h-8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+    </div>
+  </div>
+  }
 
 </div>
