@@ -91,4 +91,10 @@ export class Usuario {
       headers: this.getHeaders(),
     });
   }
+
+  checkinIsFriend(userId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}friend/check-friend/${userId}/`, {
+      headers: this.getHeaders(),
+    });
+  }
 }
