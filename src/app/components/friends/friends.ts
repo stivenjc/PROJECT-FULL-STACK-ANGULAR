@@ -8,7 +8,7 @@ import { Usuario } from '../../services/usuario';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './friends.html',
-  styleUrl: './friends.css'
+  styleUrl: './friends.css',
 })
 export class FriendsComponent implements OnInit {
   private usuarioService = inject(Usuario);
@@ -40,18 +40,18 @@ export class FriendsComponent implements OnInit {
         this.pendingRequests.set(results);
         this.usuarioService.pendingRequestsCount.set(results.length);
       },
-      error: (err: any) => console.error('Error cargando solicitudes:', err)
+      error: (err: any) => console.error('Error cargando solicitudes:', err),
     });
 
     this.usuarioService.getSentRequests().subscribe({
       next: (data: any) => this.sentRequests.set(data.results || data),
-      error: (err: any) => console.error('Error cargando solicitudes enviadas:', err)
+      error: (err: any) => console.error('Error cargando solicitudes enviadas:', err),
     });
 
     this.usuarioService.getConfirmedFriends().subscribe({
       next: (data: any) => this.friends.set(data.results || data),
       error: (err: any) => console.error('Error cargando amigos:', err),
-      complete: () => this.loading.set(false)
+      complete: () => this.loading.set(false),
     });
   }
 
@@ -62,39 +62,51 @@ export class FriendsComponent implements OnInit {
     if (query.length > 2) {
       this.usuarioService.getUsers(query).subscribe({
         next: (data: any) => this.users.set(data.results || data),
-        error: (err: any) => console.error('Error en búsqueda:', err)
+        error: (err: any) => console.error('Error en búsqueda:', err),
       });
     } else {
       this.users.set([]);
     }
   }
 
-  getFriendshipStatus(userId: number): 'none' | 'friend' | 'pending_received' | 'pending_sent' | 'is_me' {
+  getFriendshipStatus(
+    userId: number,
+  ): 'none' | 'fallowing' | 'pending_received' | 'pending_sent' | 'is_me' {
     if (userId === this.currentUserId) return 'is_me';
 
-    if (this.friends().some(f => (f.transmitter === userId || f.receiver === userId) && f.friend === true)) {
-      return 'friend';
+    if (this.friends().some((f) => f.receiver === userId && f.friend === true)) {
+      return 'fallowing';
     }
 
-    if (this.pendingRequests().some(f => f.transmitter === userId)) {
+    if (this.pendingRequests().some((f) => f.transmitter === userId)) {
       return 'pending_received';
     }
 
-    if (this.sentRequests().some(f => f.receiver === userId)) {
+    if (this.sentRequests().some((f) => f.receiver === userId)) {
       return 'pending_sent';
     }
 
     return 'none';
   }
 
-  sendRequest(userId: number) {
-    this.usuarioService.sendFriendRequest(userId).subscribe({
-      next: () => {
-        alert('Solicitud enviada');
-        this.loadAll();
-      },
-      error: (err) => alert('Ya has enviado una solicitud a este usuario o ya son amigos.')
-    });
+  sendRequest(userId: number, is_private: boolean) {
+    if (is_private) {
+      this.usuarioService.sendFriendRequest(userId, false).subscribe({
+        next: () => {
+          alert('Esta cuenta es privada, se ha enviado una solicitud para seguir');
+          this.loadAll();
+        },
+        error: (err) => alert('Ya has enviado una solicitud a este usuario o ya son amigos.'),
+      });
+    } else {
+      this.usuarioService.sendFriendRequest(userId, true).subscribe({
+        next: () => {
+          alert('Comensaste a seguir a este usuario');
+          this.loadAll();
+        },
+        error: (err) => alert('Ya has enviado una solicitud a este usuario o ya son amigos.'),
+      });
+    }
   }
 
   acceptRequest(requestId: number) {
@@ -103,7 +115,7 @@ export class FriendsComponent implements OnInit {
         alert('Solicitud aceptada');
         this.loadAll();
       },
-      error: (err) => console.error('Error al aceptar solicitud:', err)
+      error: (err) => console.error('Error al aceptar solicitud:', err),
     });
   }
 
@@ -113,7 +125,7 @@ export class FriendsComponent implements OnInit {
         next: () => {
           this.loadAll();
         },
-        error: (err) => console.error('Error al rechazar solicitud:', err)
+        error: (err) => console.error('Error al rechazar solicitud:', err),
       });
     }
   }

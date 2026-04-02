@@ -33,6 +33,7 @@ export class Login {
           localStorage.setItem('user_id', response.user.id);
           localStorage.setItem('user_username', response.user.username);
           localStorage.setItem('user_email', response.user.email);
+          localStorage.setItem('refresh_token', response.refresh);
           this.usuarioService.currentUser.update(user => ({ ...user, foto: response.user.foto }));
           this.router.navigate(['/posts']);
         },

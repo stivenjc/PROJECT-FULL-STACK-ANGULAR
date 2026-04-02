@@ -70,10 +70,10 @@ export class Usuario {
     });
   }
 
-  sendFriendRequest(receiverId: number): Observable<any> {
+  sendFriendRequest(receiverId: number, friend: boolean = false): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrl}friend/`,
-      { transmitter: localStorage.getItem('user_id'), receiver: receiverId },
+      { transmitter: localStorage.getItem('user_id'), receiver: receiverId, friend: friend },
       { headers: this.getHeaders() },
     );
   }
@@ -94,6 +94,18 @@ export class Usuario {
 
   checkinIsFriend(userId: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}friend/check-friend/${userId}/`, {
+      headers: this.getHeaders(),
+    });
+  }
+
+  logoutBackend(): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}logout/`, { 'refresh_token': localStorage.getItem('refresh_token') }, {
+      headers: this.getHeaders(),
+    });
+  }
+
+  fallowUser(userId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}friend/fallow/${userId}/`, {
       headers: this.getHeaders(),
     });
   }
