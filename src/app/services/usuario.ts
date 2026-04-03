@@ -104,8 +104,8 @@ export class Usuario {
     });
   }
 
-  fallowUser(userId: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}friend/fallow/${userId}/`, {
+  followUser(userId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}friend/follow/${userId}/`, {
       headers: this.getHeaders(),
     });
   }

@@ -87,7 +87,7 @@
             </button>
           </div>
           }
-          @case ('fallowing') {
+          @case ('following') {
           <div class="flex gap-2">
             <button disabled
               class="px-6 py-1.5 bg-slate-100 text-slate-900 font-bold rounded-lg text-sm border border-slate-200">
@@ -115,11 +115,11 @@
           <span class="text-slate-500 text-sm ml-1">publicaciones</span>
         </div>
         <div class="text-center sm:text-left">
-          <span class="font-bold block sm:inline">{{ fallowersCount() }}</span>
+          <span class="font-bold block sm:inline">{{ followersCount() }}</span>
           <span class="text-slate-500 text-sm ml-1">seguidores</span>
         </div>
         <div class="text-center sm:text-left">
-          <span class="font-bold block sm:inline">{{ fallowingsCount() }}</span>
+          <span class="font-bold block sm:inline">{{ followingsCount() }}</span>
           <span class="text-slate-500 text-sm ml-1">seguidos</span>
         </div>
       </div>
@@ -145,7 +145,7 @@
       <p class="text-xs text-slate-300">Tus fotos aparecerán aquí cuando publiques algo.</p>
     </div>
     } @else {
-    @if (isMyProfile() || !user()?.private || (user()?.private && friendshipStatus() === 'fallowing')) {
+    @if (isMyProfile() || !user()?.private || (user()?.private && friendshipStatus() === 'following')) {
     @for (post of myPosts(); track post.id) {
     <div (click)="openPost(post)"
       class="relative group aspect-square bg-slate-100 overflow-hidden cursor-pointer rounded-sm">

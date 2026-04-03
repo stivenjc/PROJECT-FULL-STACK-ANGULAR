@@ -71,11 +71,11 @@ export class FriendsComponent implements OnInit {
 
   getFriendshipStatus(
     userId: number,
-  ): 'none' | 'fallowing' | 'pending_received' | 'pending_sent' | 'is_me' {
+  ): 'none' | 'following' | 'pending_received' | 'pending_sent' | 'is_me' {
     if (userId === this.currentUserId) return 'is_me';
 
     if (this.friends().some((f) => f.receiver === userId && f.friend === true)) {
-      return 'fallowing';
+      return 'following';
     }
 
     if (this.pendingRequests().some((f) => f.transmitter === userId)) {

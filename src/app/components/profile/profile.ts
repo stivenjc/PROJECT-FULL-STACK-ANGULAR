@@ -23,10 +23,10 @@ export class ProfileComponent implements OnInit {
   myPosts = signal<any[]>([]);
   loading = signal(true);
   isMyProfile = signal(true);
-  fallowersCount = signal(0);
-  fallowingsCount = signal(0);
+  followersCount = signal(0);
+  followingsCount = signal(0);
 
-  friendshipStatus = signal<'none' | 'fallowing' | 'pending_received' | 'pending_sent' | 'is_me'>(
+  friendshipStatus = signal<'none' | 'following' | 'pending_received' | 'pending_sent' | 'is_me'>(
     'none',
   );
   requestId = signal<number | null>(null);
@@ -43,8 +43,10 @@ export class ProfileComponent implements OnInit {
         this.isMyProfile.set(userId == localStorage.getItem('user_id'));
         this.loadOtherUserData(Number(userId));
         this.loadPosts(userId);
+        this.loadFollowers(Number(userId));
         this.checkFriendship(Number(userId));
       } else {
+        this.loadFollowers(Number(localStorage.getItem('user_id')));
         this.isMyProfile.set(true);
         this.loadCurrentUserData();
         this.loadPosts(localStorage.getItem('user_id'));
@@ -74,25 +76,30 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  checkFriendship(userId: number) {
-    this.usuarioService.fallowUser(userId).subscribe({
-      next: (res) => {
-        this.fallowersCount.set(res.fallowers);
-        this.fallowingsCount.set(res.fallowing);
+  loadFollowers(userId: number) {
+    this.usuarioService.followUser(userId).subscribe({
+      next: (res: any) => {
+        this.followersCount.set(res.followers || res.fallowers || 0);
+        this.followingsCount.set(res.following || res.fallowing || 0);
       },
-      error: (err) => console.error('Error al traer lo fallow:', err),
+      error: (err: any) => console.error('Error al traer lo follow:', err),
     });
 
     if (this.isMyProfile()) {
       this.friendshipStatus.set('is_me');
       return;
     }
+  }
+
+  checkFriendship(userId: number) {
     this.usuarioService.checkinIsFriend(userId).subscribe({
-      next: (res) => {
-        this.friendshipStatus.set(res.status);
+      next: (res: any) => {
+        // Handle both 'friend' and 'following' for backward compatibility
+        const status = (res.status === 'friend' || res.status === 'fallowing') ? 'following' : res.status;
+        this.friendshipStatus.set(status);
         this.requestId.set(res.id || null);
       },
-      error: (err) => console.error('Error al verificar amistad:', err),
+      error: (err: any) => console.error('Error al verificar amistad:', err),
     });
   }
 
