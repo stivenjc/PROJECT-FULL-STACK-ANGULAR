@@ -3,11 +3,15 @@
   <section class="bg-white p-4 rounded-xl border border-slate-100">
     <div class="relative group">
       <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+        @if (!loading()) {
         <svg class="h-4 w-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
           stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
+        } @else {
+        <div class="animate-spin rounded-full h-4 w-4 border-2 border-slate-200 border-t-blue-500"></div>
+        }
       </div>
       <input type="text" (input)="searchUsers($event)" placeholder="Search"
         class="block w-full pl-10 pr-3 py-2 border-none rounded-lg bg-slate-100 placeholder-slate-500 focus:outline-none focus:bg-slate-200 transition-all text-sm">
@@ -25,7 +29,7 @@
     <div class="divide-y divide-slate-50">
       @for (user of users(); track user.id) {
       <div [routerLink]="['/profile', user.id]"
-        class="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer group">
+        class="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer">
         <div class="flex items-center gap-3">
           <div class="relative">
             <img [src]="getPhotoUrl(user.foto) || 'https://ui-avatars.com/api/?name=' + user.username"
@@ -46,9 +50,11 @@
             Seguir
           </button>
           } @else if (status === 'following') {
-          <button disabled
-            class="px-5 py-1.5 bg-slate-100 text-slate-900 font-bold rounded-lg text-xs border border-slate-200">
-            Siguiendo
+          <button (click)="rejectRequest(user.id)" class="px-5 py-1.5 bg-white border border-slate-200 text-slate-900 text-xs font-bold rounded-lg shadow-sm 
+         hover:bg-red-50 hover:text-red-500 hover:border-red-200 
+         group transition-all w-32 text-center">
+            <span class="group-hover:hidden">Siguiendo</span>
+            <span class="hidden group-hover:inline">Dejar de seguir</span>
           </button>
           } @else if (status === 'pending_sent') {
           <button disabled
@@ -81,7 +87,8 @@
     </div>
     <div class="divide-y divide-slate-50">
       @for (req of pendingRequests(); track req.id) {
-      <div class="px-4 py-4 flex items-center justify-between hover:bg-slate-50 transition-all">
+      <div [routerLink]="['/profile', req.transmitter_data.id]"
+        class="px-4 py-4 flex items-center justify-between hover:bg-slate-50 transition-all cursor-pointer">
         <div class="flex items-center gap-3">
           <img
             [src]="getPhotoUrl(req.transmitter_data?.foto) || 'https://ui-avatars.com/api/?name=' + req.transmitter_data?.username"
@@ -141,8 +148,9 @@
     </div>
     <div class="divide-y divide-slate-50">
       @for (f of friends(); track f.id) {
-      @let friendData = (f.transmitter == currentUserId ? f.receiver_data : f.transmitter_data);
-      <div class="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors group">
+      @let friendData = f.receiver_data;
+      <div [routerLink]="['/profile', friendData.id]"
+        class="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
         <div class="flex items-center gap-3">
           <div class="relative p-[1px] rounded-full border border-slate-100">
             <img [src]="getPhotoUrl(friendData?.foto) || 'https://ui-avatars.com/api/?name=' + friendData?.username"
@@ -154,9 +162,11 @@
             <p class="text-xs text-slate-500 leading-tight">{{ friendData?.first_name }} {{ friendData?.last_name }}</p>
           </div>
         </div>
-        <button disabled
-          class="px-5 py-1.5 bg-white border border-slate-200 text-slate-900 text-xs font-bold rounded-lg shadow-sm">
-          Siguiendo
+        <button (click)="rejectRequest(f.id)" class="px-5 py-1.5 bg-white border border-slate-200 text-slate-900 text-xs font-bold rounded-lg shadow-sm 
+         hover:bg-red-50 hover:text-red-500 hover:border-red-200 
+         group transition-all w-32 text-center">
+          <span class="group-hover:hidden">Siguiendo</span>
+          <span class="hidden group-hover:inline">Dejar de seguir</span>
         </button>
       </div>
       }

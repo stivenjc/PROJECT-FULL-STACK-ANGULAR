@@ -60,12 +60,15 @@ export class FriendsComponent implements OnInit {
     this.searchQuery.set(query);
 
     if (query.length > 2) {
+      this.loading.set(true);
       this.usuarioService.getUsers(query).subscribe({
         next: (data: any) => this.users.set(data.results || data),
         error: (err: any) => console.error('Error en búsqueda:', err),
+        complete: () => this.loading.set(false),
       });
     } else {
       this.users.set([]);
+      this.loading.set(false);
     }
   }
 
