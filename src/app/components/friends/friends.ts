@@ -2,11 +2,13 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Usuario } from '../../services/usuario';
+import { UserCardComponent } from '../user-card/user-card';
+import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-friends',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, UserCardComponent],
   templateUrl: './friends.html',
   styleUrl: './friends.css',
 })
@@ -22,6 +24,9 @@ export class FriendsComponent implements OnInit {
   friends = signal<any[]>([]);
   searchQuery = signal<string>('');
   loading = signal<boolean>(false);
+
+  // 🚰 El "Grifo": Un Subject es un tipo especial de Observable que permite lanzar datos
+  private searchSubject = new Subject<string>();
 
   // Computed Signal: This will automatically update whenever 'friends' or 'searchQuery' changes.
   filteredFriends = computed(() => {
@@ -39,6 +44,25 @@ export class FriendsComponent implements OnInit {
 
   ngOnInit() {
     this.loadAll();
+
+    // 🏗️ Configuramos la "Tubería" (Pipe) del buscador
+    this.searchSubject.pipe(
+      debounceTime(400),        // ⏱️ Espera 400ms después de que el usuario deje de escribir
+      distinctUntilChanged(),   // 👥 No busques si el texto es igual al anterior
+      switchMap((term) => {     // 🔄 Si hay una búsqueda en marcha, la cancela y empieza la nueva
+        this.loading.set(true);
+        return this.usuarioService.getUsers(term);
+      })
+    ).subscribe({
+      next: (data: any) => {
+        this.users.set(data.results || data);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Error en búsqueda:', err);
+        this.loading.set(false);
+      }
+    });
   }
 
   getPhotoUrl(photo: string | null): string {
@@ -74,12 +98,8 @@ export class FriendsComponent implements OnInit {
     this.searchQuery.set(query);
 
     if (query.length > 2) {
-      this.loading.set(true);
-      this.usuarioService.getUsers(query).subscribe({
-        next: (data: any) => this.users.set(data.results || data),
-        error: (err: any) => console.error('Error en búsqueda:', err),
-        complete: () => this.loading.set(false),
-      });
+      // 🚀 En lugar de llamar a la API directamente, lanzamos el texto al "Grifo" (Subject)
+      this.searchSubject.next(query);
     } else {
       this.users.set([]);
       this.loading.set(false);

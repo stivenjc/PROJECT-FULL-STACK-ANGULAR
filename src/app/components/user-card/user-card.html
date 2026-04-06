@@ -1,0 +1,35 @@
+<div class="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
+  <div class="flex items-center gap-3">
+    <div [routerLink]="['/profile', user.id]" class="relative cursor-pointer">
+      <img [src]="user.foto || 'https://ui-avatars.com/api/?name=' + user.username"
+        class="w-12 h-12 rounded-full object-cover border border-slate-100">
+    </div>
+    <div class="flex flex-col">
+      <span class="text-sm font-bold text-slate-900 leading-tight">{{ user.username }}</span>
+      <span class="text-xs text-slate-500 leading-tight">{{ user.first_name }} {{ user.last_name }}</span>
+    </div>
+  </div>
+
+  <div class="shrink-0 ml-4">
+    @if (status === 'none') {
+    <button (click)="follow.emit({id: user.id, private: user.private})"
+      class="px-5 py-1.5 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg transition-all text-xs shadow-sm">
+      Seguir
+    </button>
+    } @else if (status === 'following') {
+    <button (click)="unfollow.emit(user.id)" class="px-5 py-1.5 bg-white border border-slate-200 text-slate-900 text-xs font-bold rounded-lg shadow-sm 
+         hover:bg-red-50 hover:text-red-500 hover:border-red-200 
+         group/btn transition-all w-32 text-center">
+      <span class="group-hover/btn:hidden">Siguiendo</span>
+      <span class="hidden group-hover/btn:inline">Dejar de seguir</span>
+    </button>
+    } @else if (status === 'pending_received') {
+    <button disabled
+      class="px-5 py-1.5 bg-amber-50 text-amber-600 font-bold rounded-lg text-xs border border-amber-100 italic">
+      En espera de confirmación
+    </button>
+    } @else if (status === 'is_me') {
+    <span class="text-[10px] font-bold text-slate-300 uppercase italic">Tú</span>
+    }
+  </div>
+</div>
