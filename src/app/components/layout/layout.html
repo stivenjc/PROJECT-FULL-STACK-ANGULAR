@@ -34,7 +34,7 @@
         }
       </a>
 
-      <a routerLink="/profile" routerLinkActive="font-extrabold"
+      <a [routerLink]="['/profile/', usuarioService.currentUser()?.id]" routerLinkActive="font-extrabold"
         class="flex items-center gap-4 px-3 py-3 text-slate-900 hover:bg-slate-50 rounded-xl transition-all group">
         <div
           class="w-7 h-7 rounded-full border-2 border-slate-900 overflow-hidden group-hover:scale-110 transition-transform">

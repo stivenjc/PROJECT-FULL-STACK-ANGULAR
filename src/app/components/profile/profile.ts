@@ -6,11 +6,12 @@ import { Usuario } from '../../services/usuario';
 import { PostService } from '../../services/posts';
 import { Comments } from '../comments/comments';
 import { Likes } from '../likes/likes';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, Comments, Likes],
+  imports: [CommonModule, FormsModule, Comments, Likes, RouterLink],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
@@ -51,7 +52,7 @@ export class ProfileComponent implements OnInit {
         this.loadCurrentUserData();
         this.loadPosts(localStorage.getItem('user_id'));
       }
-    });
+    })
   }
 
   loadCurrentUserData() {

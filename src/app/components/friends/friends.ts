@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Usuario } from '../../services/usuario';
@@ -22,6 +22,20 @@ export class FriendsComponent implements OnInit {
   friends = signal<any[]>([]);
   searchQuery = signal<string>('');
   loading = signal<boolean>(false);
+
+  // Computed Signal: This will automatically update whenever 'friends' or 'searchQuery' changes.
+  filteredFriends = computed(() => {
+    const query = this.searchQuery().toLowerCase();
+    const allFriends = this.friends();
+
+    if (!query) return allFriends;
+
+    return allFriends.filter(f => {
+      return f.receiver_data?.username?.toLowerCase().includes(query) ||
+        f.receiver_data?.first_name?.toLowerCase().includes(query) ||
+        f.receiver_data?.last_name?.toLowerCase().includes(query);
+    });
+  });
 
   ngOnInit() {
     this.loadAll();

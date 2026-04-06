@@ -147,7 +147,7 @@
       <h2 class="text-sm font-bold text-slate-900">Seguidos</h2>
     </div>
     <div class="divide-y divide-slate-50">
-      @for (f of friends(); track f.id) {
+      @for (f of filteredFriends(); track f.id) {
       @let friendData = f.receiver_data;
       <div [routerLink]="['/profile', friendData.id]"
         class="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
