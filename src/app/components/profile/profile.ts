@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -6,7 +6,6 @@ import { Usuario } from '../../services/usuario';
 import { PostService } from '../../services/posts';
 import { Comments } from '../comments/comments';
 import { Likes } from '../likes/likes';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
@@ -16,7 +15,7 @@ import { RouterLink } from '@angular/router';
   styleUrl: './profile.css',
 })
 export class ProfileComponent implements OnInit {
-  private usuarioService = inject(Usuario);
+  public usuarioService = inject(Usuario);
   private postService = inject(PostService);
   private route = inject(ActivatedRoute);
 
@@ -27,10 +26,32 @@ export class ProfileComponent implements OnInit {
   followersCount = signal(0);
   followingsCount = signal(0);
 
-  friendshipStatus = signal<'none' | 'following' | 'pending_received' | 'pending_sent' | 'is_me'>(
-    'none',
-  );
-  requestId = signal<number | null>(null);
+  private currentUserId = Number(localStorage.getItem('user_id'));
+
+  // 🧠 Status calculado automáticamente desde el Estado Global del Servicio
+  friendshipStatus = computed(() => {
+    const userData = this.user();
+    if (!userData) return 'none';
+    const userId = userData.id;
+
+    if (userId === this.currentUserId) return 'is_me';
+
+    // Verificar si son amigos (siguiendo)
+    const isFriend = this.usuarioService.friendsList().some(f =>
+      f.receiver === userId && f.transmitter === this.currentUserId
+    );
+    if (isFriend) return 'following';
+
+    // Verificar si hay solicitud recibida
+    const hasReceived = this.usuarioService.pendingReceived().some(f => f.transmitter === userId);
+    if (hasReceived) return 'pending_received';
+
+    // Verificar si hay solicitud enviada
+    const hasSent = this.usuarioService.pendingSent().some(f => f.receiver === userId);
+    if (hasSent) return 'pending_sent';
+
+    return 'none';
+  });
 
   // Modal and Edit state
   selectedPost = signal<any>(null);
@@ -38,6 +59,9 @@ export class ProfileComponent implements OnInit {
   editPostText = '';
 
   ngOnInit() {
+    // Sincronizamos el estado social al entrar
+    this.usuarioService.syncSocialState();
+
     this.route.params.subscribe((params) => {
       const userId = params['id'];
       if (userId) {
@@ -45,7 +69,6 @@ export class ProfileComponent implements OnInit {
         this.loadOtherUserData(Number(userId));
         this.loadPosts(userId);
         this.loadFollowers(Number(userId));
-        this.checkFriendship(Number(userId));
       } else {
         this.loadFollowers(Number(localStorage.getItem('user_id')));
         this.isMyProfile.set(true);
@@ -85,77 +108,23 @@ export class ProfileComponent implements OnInit {
       },
       error: (err: any) => console.error('Error al traer lo follow:', err),
     });
-
-    if (this.isMyProfile()) {
-      this.friendshipStatus.set('is_me');
-      return;
-    }
-  }
-
-  checkFriendship(userId: number) {
-    this.usuarioService.checkinIsFriend(userId).subscribe({
-      next: (res: any) => {
-        // Handle both 'friend' and 'following' for backward compatibility
-        const status = (res.status === 'friend' || res.status === 'fallowing') ? 'following' : res.status;
-        this.friendshipStatus.set(status);
-        this.requestId.set(res.id || null);
-      },
-      error: (err: any) => console.error('Error al verificar amistad:', err),
-    });
   }
 
   sendRequest(userId: number, is_private: boolean = false) {
-    console.log('Sending request:', is_private);
-    if (is_private) {
-      console.log(is_private);
-      this.usuarioService.sendFriendRequest(userId).subscribe({
-        next: () => {
-          this.checkFriendship(userId);
-        },
-        error: (err) => console.error('Error al enviar solicitud:', err),
-      });
-    } else {
-      this.usuarioService.sendFriendRequest(userId, true).subscribe({
-        next: () => {
-          console.log('Sending request:', is_private, 'edsde el donde supuestamente esta libre');
-          this.checkFriendship(userId);
-        },
-        error: (err) => console.error('Error al enviar solicitud:', err),
-      });
-    }
+    this.usuarioService.sendFriendRequest(userId, !is_private).subscribe();
   }
 
   acceptRequest() {
-    if (!this.requestId()) return;
-    this.usuarioService.acceptFriendRequest(this.requestId()!).subscribe({
-      next: () => {
-        this.checkFriendship(this.user().id);
-      },
-      error: (err) => console.error('Error al aceptar solicitud:', err),
-    });
-  }
-
-  cancelRequest() {
-    if (!this.requestId()) return;
-    if (confirm('¿Estás seguro de que deseas cancelar la solicitud?')) {
-      this.usuarioService.deleteFriendship(this.requestId()!).subscribe({
-        next: () => {
-          this.checkFriendship(this.user().id);
-        },
-        error: (err) => console.error('Error al cancelar solicitud:', err),
-      });
+    const friendship = this.usuarioService.getFriendship(this.user().id);
+    if (friendship) {
+      this.usuarioService.acceptFriendRequest(friendship.id).subscribe();
     }
   }
 
-  removeFriend() {
-    if (!this.requestId()) return;
-    if (confirm('¿Estás seguro de que deseas dejar de seguir a esta persona?')) {
-      this.usuarioService.deleteFriendship(this.requestId()!).subscribe({
-        next: () => {
-          this.checkFriendship(this.user().id);
-        },
-        error: (err) => console.error('Error al dejar de seguir:', err),
-      });
+  cancelOrRemove() {
+    const friendship = this.usuarioService.getFriendship(this.user().id);
+    if (friendship && confirm('¿Estás seguro?')) {
+      this.usuarioService.deleteFriendship(friendship.id).subscribe();
     }
   }
 

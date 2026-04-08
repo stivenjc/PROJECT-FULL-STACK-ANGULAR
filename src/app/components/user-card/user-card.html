@@ -14,31 +14,36 @@
   <div class="shrink-0 ml-4">
     @if (showDelete) {
     <button (click)="$event.stopPropagation(); delete.emit(user.id)"
-      class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all" title="Eliminar de recientes">
+      class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+      title="Eliminar de recientes">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
     </button>
     } @else {
-    @if (status === 'none') {
-    <button (click)="follow.emit({id: user.id, private: user.private})"
+    @if (status() === 'none') {
+    <button (click)="handleFollow($event)"
       class="px-5 py-1.5 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg transition-all text-xs shadow-sm">
       Seguir
     </button>
-    } @else if (status === 'following') {
-    <button (click)="unfollow.emit(user.id)" class="px-5 py-1.5 bg-white border border-slate-200 text-slate-900 text-xs font-bold rounded-lg shadow-sm 
+    } @else if (status() === 'following') {
+    <button (click)="handleUnfollow($event)" class="px-5 py-1.5 bg-white border border-slate-200 text-slate-900 text-xs font-bold rounded-lg shadow-sm 
          hover:bg-red-50 hover:text-red-500 hover:border-red-200 
          group/btn transition-all w-32 text-center">
       <span class="group-hover/btn:hidden">Siguiendo</span>
       <span class="hidden group-hover/btn:inline">Dejar de seguir</span>
     </button>
-    } @else if (status === 'pending_received') {
+    } @else if (status() === 'pending_received') {
     <button disabled
       class="px-5 py-1.5 bg-amber-50 text-amber-600 font-bold rounded-lg text-xs border border-amber-100 italic">
       En espera de confirmación
     </button>
-    } @else if (status === 'is_me') {
+    } @else if (status() === 'is_me') {
     <span class="text-[10px] font-bold text-slate-300 uppercase italic">Tú</span>
+    } @else if (status() === 'pending_sent') {
+    <span class="text-xs font-bold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+      Pendiente
+    </span>
     }
     }
   </div>

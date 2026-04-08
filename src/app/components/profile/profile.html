@@ -69,7 +69,7 @@
               class="px-5 py-1.5 bg-slate-100 text-slate-400 font-bold rounded-lg text-sm border border-slate-200">
               Pendiente
             </button>
-            <button (click)="cancelRequest()"
+            <button (click)="cancelOrRemove()"
               class="px-5 py-1.5 bg-white border border-red-200 text-red-500 hover:bg-red-50 font-bold rounded-lg text-sm transition-all">
               Cancelar
             </button>
@@ -81,7 +81,7 @@
               class="px-6 py-1.5 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg text-sm transition-all shadow-sm">
               Confirmar
             </button>
-            <button (click)="cancelRequest()"
+            <button (click)="cancelOrRemove()"
               class="px-6 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold rounded-lg text-sm transition-all border border-slate-200">
               Eliminar
             </button>
@@ -93,7 +93,7 @@
               class="px-6 py-1.5 bg-slate-100 text-slate-900 font-bold rounded-lg text-sm border border-slate-200">
               Siguiendo
             </button>
-            <button (click)="removeFriend()"
+            <button (click)="cancelOrRemove()"
               class="px-2 py-1.5 bg-slate-100 hover:bg-red-50 hover:text-red-500 text-slate-400 rounded-lg transition-all"
               title="Dejar de seguir">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"

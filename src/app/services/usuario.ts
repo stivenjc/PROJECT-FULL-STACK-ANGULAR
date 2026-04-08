@@ -12,11 +12,45 @@ export class Usuario {
   pendingRequestsCount = signal<number>(0);
   currentUser = signal<any>(null);
 
+  // 🛡️ Almacén Central de Amistades (Store)
+  friendsList = signal<any[]>([]);
+  pendingReceived = signal<any[]>([]);
+  pendingSent = signal<any[]>([]);
+
   getHeaders() {
     const token = localStorage.getItem('token');
     return new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
+  }
+
+  // Sincroniza todo el estado social con el servidor
+  syncSocialState() {
+    const userId = localStorage.getItem('user_id');
+    if (!userId) return;
+
+    this.getFriendRequests().subscribe(data => {
+      const list = data.results || data;
+      this.pendingReceived.set(list);
+      this.pendingRequestsCount.set(list.length);
+    });
+
+    this.getSentRequests().subscribe(data => {
+      this.pendingSent.set(data.results || data);
+    });
+
+    this.getConfirmedFriends().subscribe(data => {
+      this.friendsList.set(data.results || data);
+    });
+  }
+
+  // Ayudante para encontrar una relación de amistad por ID de usuario
+  getFriendship(userId: number) {
+    return this.friendsList().find(f =>
+      (f.receiver === userId) || (f.transmitter === userId)
+    ) ||
+      this.pendingSent().find(f => f.receiver === userId) ||
+      this.pendingReceived().find(f => f.transmitter === userId);
   }
 
   updateUser(userId: number, data: any): Observable<any> {
@@ -71,25 +105,34 @@ export class Usuario {
   }
 
   sendFriendRequest(receiverId: number, friend: boolean = false): Observable<any> {
-    return this.http.post<any>(
+    const obs = this.http.post<any>(
       `${this.apiUrl}friend/`,
       { transmitter: localStorage.getItem('user_id'), receiver: receiverId, friend: friend },
       { headers: this.getHeaders() },
     );
+    // Sincronizamos después de enviar
+    obs.subscribe(() => this.syncSocialState());
+    return obs;
   }
 
   acceptFriendRequest(requestId: number): Observable<any> {
-    return this.http.patch<any>(
+    const obs = this.http.patch<any>(
       `${this.apiUrl}friend/${requestId}/`,
       { friend: true },
       { headers: this.getHeaders() },
     );
+    // Sincronizamos después de aceptar
+    obs.subscribe(() => this.syncSocialState());
+    return obs;
   }
 
   deleteFriendship(requestId: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}friend/${requestId}/`, {
+    const obs = this.http.delete<any>(`${this.apiUrl}friend/${requestId}/`, {
       headers: this.getHeaders(),
     });
+    // Sincronizamos después de borrar
+    obs.subscribe(() => this.syncSocialState());
+    return obs;
   }
 
   checkinIsFriend(userId: number): Observable<any> {

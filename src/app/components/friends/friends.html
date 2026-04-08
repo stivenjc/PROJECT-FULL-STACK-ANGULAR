@@ -55,8 +55,7 @@
 
     <div class="divide-y divide-slate-50">
       @for (user of users(); track user.id) {
-      <app-user-card [user]="user" [status]="getFriendshipStatus(user.id)" (follow)="sendRequest(user.id, user.private)"
-        (unfollow)="rejectRequest(user.id)" (addToRecent)="addToRecent(user)">
+      <app-user-card [user]="user" (addToRecent)="addToRecent(user)">
       </app-user-card>
       }
     </div>
@@ -67,13 +66,13 @@
   </div>
   }
 
-  @if (pendingRequests().length > 0) {
+  @if (usuarioService.pendingReceived().length > 0) {
   <section class="bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm">
     <div class="px-4 py-3 border-b border-slate-50 bg-slate-50/50">
       <h2 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Quieren ser tus seguidores</h2>
     </div>
     <div class="divide-y divide-slate-50">
-      @for (req of pendingRequests(); track req.id) {
+      @for (req of usuarioService.pendingReceived(); track req.id) {
       <div [routerLink]="['/profile', req.transmitter_data.id]"
         class="px-4 py-4 flex items-center justify-between hover:bg-slate-50 transition-all cursor-pointer">
         <div class="flex items-center gap-3">
@@ -86,11 +85,11 @@
           </div>
         </div>
         <div class="flex gap-2">
-          <button (click)="acceptRequest(req.id)"
+          <button (click)="$event.stopPropagation(); usuarioService.acceptFriendRequest(req.id).subscribe()"
             class="px-4 py-1.5 bg-blue-500 text-white text-xs font-bold rounded-lg hover:bg-blue-600 transition-colors shadow-sm">
             Confirmar
           </button>
-          <button (click)="rejectRequest(req.id)"
+          <button (click)="$event.stopPropagation(); usuarioService.deleteFriendship(req.id).subscribe()"
             class="px-4 py-1.5 bg-slate-100 text-slate-900 text-xs font-bold rounded-lg hover:bg-slate-200 transition-colors border border-slate-200">
             Eliminar
           </button>
@@ -101,13 +100,13 @@
   </section>
   }
 
-  @if (sentRequests().length > 0) {
+  @if (usuarioService.pendingSent().length > 0) {
   <section class="bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm">
     <div class="px-4 py-2 border-b border-slate-50">
       <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Esperando confirmación</h2>
     </div>
     <div class="divide-y divide-slate-50">
-      @for (req of sentRequests(); track req.id) {
+      @for (req of usuarioService.pendingSent(); track req.id) {
       <div class="px-4 py-3 flex items-center justify-between opacity-80 decoration-slate-300">
         <div class="flex items-center gap-3">
           <img
@@ -118,7 +117,7 @@
             <p class="text-[10px] text-slate-400 leading-none">Solicitud enviada</p>
           </div>
         </div>
-        <button (click)="rejectRequest(req.id)"
+        <button (click)="usuarioService.deleteFriendship(req.id).subscribe()"
           class="px-3 py-1.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-md hover:bg-red-50 hover:text-red-500 transition-colors border border-slate-200">
           CANCELAR
         </button>
