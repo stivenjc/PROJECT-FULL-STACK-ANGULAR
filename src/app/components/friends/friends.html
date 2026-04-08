@@ -18,6 +18,33 @@
     </div>
   </section>
 
+
+  @if (!searchQuery() && recentSearches().length > 0) {
+  <section
+    class="bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm animate-in slide-in-from-top duration-300">
+    <div class="px-4 py-3 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+      <div class="flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h2 class="text-sm font-bold text-slate-700">Búsquedas Recientes</h2>
+      </div>
+      <button (click)="clearRecent()"
+        class="text-[10px] font-bold text-blue-500 hover:text-blue-600 uppercase tracking-wider transition-colors">
+        Limpiar historial
+      </button>
+    </div>
+    <div class="divide-y divide-slate-50">
+      @for (user of recentSearches(); track user.id) {
+      <app-user-card [user]="user" [showDelete]="true" (delete)="deleteFromRecent($event)">
+      </app-user-card>
+      }
+    </div>
+  </section>
+  }
+
   @if (users().length > 0) {
   <section class="bg-white rounded-xl border border-slate-100 overflow-hidden">
     <div class="px-4 py-3 border-b border-slate-50 flex items-center justify-between">
@@ -29,7 +56,7 @@
     <div class="divide-y divide-slate-50">
       @for (user of users(); track user.id) {
       <app-user-card [user]="user" [status]="getFriendshipStatus(user.id)" (follow)="sendRequest(user.id, user.private)"
-        (unfollow)="rejectRequest(user.id)">
+        (unfollow)="rejectRequest(user.id)" (addToRecent)="addToRecent(user)">
       </app-user-card>
       }
     </div>
@@ -94,39 +121,6 @@
         <button (click)="rejectRequest(req.id)"
           class="px-3 py-1.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-md hover:bg-red-50 hover:text-red-500 transition-colors border border-slate-200">
           CANCELAR
-        </button>
-      </div>
-      }
-    </div>
-  </section>
-  }
-
-  @if (friends().length > 0) {
-  <section class="bg-white rounded-xl border border-slate-100 overflow-hidden">
-    <div class="px-4 py-3 border-b border-slate-50">
-      <h2 class="text-sm font-bold text-slate-900">Seguidos</h2>
-    </div>
-    <div class="divide-y divide-slate-50">
-      @for (f of filteredFriends(); track f.id) {
-      @let friendData = f.receiver_data;
-      <div [routerLink]="['/profile', friendData.id]"
-        class="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
-        <div class="flex items-center gap-3">
-          <div class="relative p-[1px] rounded-full border border-slate-100">
-            <img [src]="getPhotoUrl(friendData?.foto) || 'https://ui-avatars.com/api/?name=' + friendData?.username"
-              class="w-12 h-12 rounded-full object-cover">
-            <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
-          </div>
-          <div class="flex flex-col">
-            <p class="text-sm font-bold text-slate-900 leading-tight">{{ friendData?.username }}</p>
-            <p class="text-xs text-slate-500 leading-tight">{{ friendData?.first_name }} {{ friendData?.last_name }}</p>
-          </div>
-        </div>
-        <button (click)="rejectRequest(f.id)" class="px-5 py-1.5 bg-white border border-slate-200 text-slate-900 text-xs font-bold rounded-lg shadow-sm 
-         hover:bg-red-50 hover:text-red-500 hover:border-red-200 
-         group transition-all w-32 text-center">
-          <span class="group-hover:hidden">Siguiendo</span>
-          <span class="hidden group-hover:inline">Dejar de seguir</span>
         </button>
       </div>
       }

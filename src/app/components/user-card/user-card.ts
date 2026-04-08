@@ -16,6 +16,10 @@ export class UserCardComponent {
 
   @Output() follow = new EventEmitter<{ id: number, private: boolean }>();
   @Output() unfollow = new EventEmitter<number>();
+  @Output() addToRecent = new EventEmitter<any>();
+  @Output() delete = new EventEmitter<number>(); // Nuevo evento para borrar
+
+  @Input() showDelete = false; // Nueva opción para mostrar la X
 
   usuarioService = inject(Usuario);
 

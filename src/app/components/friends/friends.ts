@@ -25,6 +25,9 @@ export class FriendsComponent implements OnInit {
   searchQuery = signal<string>('');
   loading = signal<boolean>(false);
 
+  // 🕵️ Historial: Cargamos lo que el usuario ha buscado anteriormente
+  recentSearches = signal<any[]>(JSON.parse(localStorage.getItem('recent_searches') || '[]'));
+
   // 🚰 El "Grifo": Un Subject es un tipo especial de Observable que permite lanzar datos
   private searchSubject = new Subject<string>();
 
@@ -165,5 +168,24 @@ export class FriendsComponent implements OnInit {
         error: (err) => console.error('Error al rechazar solicitud:', err),
       });
     }
+  }
+
+  // 🕵️ Métodos para el historial de búsquedas
+  addToRecent(user: any) {
+    const current = this.recentSearches().filter(u => u.id !== user.id);
+    const updated = [user, ...current].slice(0, 5);
+    this.recentSearches.set(updated);
+    localStorage.setItem('recent_searches', JSON.stringify(updated));
+  }
+
+  clearRecent() {
+    this.recentSearches.set([]);
+    localStorage.removeItem('recent_searches');
+  }
+
+  deleteFromRecent(userId: number) {
+    const update = this.recentSearches().filter(u => u.id !== userId);
+    this.recentSearches.set(update);
+    localStorage.setItem('recent_searches', JSON.stringify(update));
   }
 }

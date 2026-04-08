@@ -1,7 +1,8 @@
 <div class="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
   <div class="flex items-center gap-3">
-    <div [routerLink]="['/profile', user.id]" class="relative cursor-pointer">
-      <img [src]="user.foto || 'https://ui-avatars.com/api/?name=' + user.username"
+    <div class="relative cursor-pointer">
+      <img [routerLink]="['/profile', user.id]" (click)="addToRecent.emit(user)"
+        [src]="user.foto || 'https://ui-avatars.com/api/?name=' + user.username"
         class="w-12 h-12 rounded-full object-cover border border-slate-100">
     </div>
     <div class="flex flex-col">
@@ -11,6 +12,14 @@
   </div>
 
   <div class="shrink-0 ml-4">
+    @if (showDelete) {
+    <button (click)="$event.stopPropagation(); delete.emit(user.id)"
+      class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all" title="Eliminar de recientes">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    } @else {
     @if (status === 'none') {
     <button (click)="follow.emit({id: user.id, private: user.private})"
       class="px-5 py-1.5 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg transition-all text-xs shadow-sm">
@@ -30,6 +39,7 @@
     </button>
     } @else if (status === 'is_me') {
     <span class="text-[10px] font-bold text-slate-300 uppercase italic">Tú</span>
+    }
     }
   </div>
 </div>
