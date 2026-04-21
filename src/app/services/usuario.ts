@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin, finalize } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -17,6 +17,8 @@ export class Usuario {
   pendingReceived = signal<any[]>([]);
   pendingSent = signal<any[]>([]);
 
+  private isSyncing = false;
+
   getHeaders() {
     const token = localStorage.getItem('token');
     return new HttpHeaders({
@@ -26,21 +28,30 @@ export class Usuario {
 
   // Sincroniza todo el estado social con el servidor
   syncSocialState() {
+    if (this.isSyncing) return;
     const userId = localStorage.getItem('user_id');
     if (!userId) return;
 
-    this.getFriendRequests().subscribe(data => {
-      const list = data.results || data;
-      this.pendingReceived.set(list);
-      this.pendingRequestsCount.set(list.length);
-    });
+    this.isSyncing = true;
 
-    this.getSentRequests().subscribe(data => {
-      this.pendingSent.set(data.results || data);
-    });
-
-    this.getConfirmedFriends().subscribe(data => {
-      this.friendsList.set(data.results || data);
+    // Usamos forkJoin para hacer las 3 peticiones en paralelo y esperar a que todas terminen
+    forkJoin({
+      pending: this.getFriendRequests(),
+      sent: this.getSentRequests(),
+      friends: this.getConfirmedFriends()
+    }).pipe(
+      finalize(() => this.isSyncing = false)
+    ).subscribe({
+      next: (data: any) => {
+        const pList = data.pending.results || data.pending;
+        this.pendingReceived.set(pList);
+        this.pendingRequestsCount.set(pList.length);
+        this.pendingSent.set(data.sent.results || data.sent);
+        this.friendsList.set(data.friends.results || data.friends);
+      },
+      error: (err) => {
+        console.error('Error sincronizando estado social:', err);
+      }
     });
   }
 

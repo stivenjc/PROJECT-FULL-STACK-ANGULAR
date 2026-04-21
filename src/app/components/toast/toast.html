@@ -1,0 +1,43 @@
+<div class="fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none">
+  @for (toast of toastService.toasts(); track toast.id) {
+  <div [ngClass]="{
+        'bg-white border-l-4 border-green-500 shadow-[0_8px_30px_rgb(0,0,0,0.12)]': toast.type === 'success',
+        'bg-white border-l-4 border-red-500 shadow-[0_8px_30px_rgb(0,0,0,0.12)]': toast.type === 'error',
+        'bg-white border-l-4 border-blue-500 shadow-[0_8px_30px_rgb(0,0,0,0.12)]': toast.type === 'info'
+      }"
+    class="pointer-events-auto min-w-[300px] max-w-md p-4 rounded-r-xl flex items-start gap-3 animate-in slide-in-from-right-full duration-300">
+
+    <!-- Icon Success -->
+    @if (toast.type === 'success') {
+    <div class="mt-0.5 p-1 bg-green-50 rounded-full text-green-500">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+    }
+
+    <!-- Icon Error -->
+    @if (toast.type === 'error') {
+    <div class="mt-0.5 p-1 bg-red-50 rounded-full text-red-500">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </div>
+    }
+
+    <!-- Message Body -->
+    <div class="flex-1">
+      <p class="text-xs font-bold text-slate-900 leading-tight">{{ toast.type === 'success' ? 'Éxito' : (toast.type ===
+        'error' ? 'Error' : 'Notificación') }}</p>
+      <p class="text-[13px] text-slate-500 mt-1 leading-snug">{{ toast.message }}</p>
+    </div>
+
+    <!-- Close Button -->
+    <button (click)="toastService.remove(toast.id)" class="text-slate-300 hover:text-slate-500 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  }
+</div>

@@ -6,6 +6,7 @@ import { Usuario } from '../../services/usuario';
 import { PostService } from '../../services/posts';
 import { Comments } from '../comments/comments';
 import { Likes } from '../likes/likes';
+import { ToastService } from '../../services/toast';
 
 @Component({
   selector: 'app-profile',
@@ -17,6 +18,7 @@ import { Likes } from '../likes/likes';
 export class ProfileComponent implements OnInit {
   public usuarioService = inject(Usuario);
   private postService = inject(PostService);
+  private toastService = inject(ToastService);
   private route = inject(ActivatedRoute);
 
   user = signal<any>(null);
@@ -111,20 +113,35 @@ export class ProfileComponent implements OnInit {
   }
 
   sendRequest(userId: number, is_private: boolean = false) {
-    this.usuarioService.sendFriendRequest(userId, !is_private).subscribe();
+    this.usuarioService.sendFriendRequest(userId, !is_private).subscribe({
+      next: () => {
+        if (is_private) {
+          this.toastService.info('Solicitud de seguimiento enviada');
+        } else {
+          this.toastService.success(`Ahora sigues a ${this.user()?.username}`);
+        }
+      },
+      error: () => this.toastService.error('Errror al intentar procesar la solicitud')
+    });
   }
 
   acceptRequest() {
     const friendship = this.usuarioService.getFriendship(this.user().id);
     if (friendship) {
-      this.usuarioService.acceptFriendRequest(friendship.id).subscribe();
+      this.usuarioService.acceptFriendRequest(friendship.id).subscribe({
+        next: () => this.toastService.success('Solicitud confirmada'),
+        error: () => this.toastService.error('Error al aceptar la solicitud')
+      });
     }
   }
 
   cancelOrRemove() {
     const friendship = this.usuarioService.getFriendship(this.user().id);
-    if (friendship && confirm('¿Estás seguro?')) {
-      this.usuarioService.deleteFriendship(friendship.id).subscribe();
+    if (friendship && confirm(`¿Estás seguro de que deseas cancelar la relación con ${this.user()?.username}?`)) {
+      this.usuarioService.deleteFriendship(friendship.id).subscribe({
+        next: () => this.toastService.info('Relación finalizada'),
+        error: () => this.toastService.error('Error al procesar la cancelación')
+      });
     }
   }
 

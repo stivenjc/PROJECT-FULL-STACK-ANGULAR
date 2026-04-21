@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, inject, computed } from '@angul
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Usuario } from '../../services/usuario';
+import { ToastService } from '../../services/toast';
 
 @Component({
   selector: 'app-user-card',
@@ -20,6 +21,7 @@ export class UserCardComponent {
   @Input() showDelete = false;
 
   usuarioService = inject(Usuario);
+  toastService = inject(ToastService);
   private currentUserId = Number(localStorage.getItem('user_id'));
 
   // 🧠 Status calculado automáticamente desde el Estado Global
@@ -49,21 +51,31 @@ export class UserCardComponent {
   handleFollow(event: Event) {
     event.stopPropagation();
     const isPrivate = this.user.private;
-    // Si es público (private=false), pasamos friend=true para seguimiento automático
-    this.usuarioService.sendFriendRequest(this.user.id, !isPrivate).subscribe();
+    this.usuarioService.sendFriendRequest(this.user.id, !isPrivate).subscribe({
+      next: () => {
+        if (isPrivate) {
+          this.toastService.info('Solicitud de seguimiento enviada');
+        } else {
+          this.toastService.success(`Ahora sigues a ${this.user.username}`);
+        }
+      },
+      error: () => this.toastService.error('No se pudo enviar la solicitud')
+    });
   }
 
   handleUnfollow(event: Event) {
     event.stopPropagation();
     const userId = this.user.id;
-    // Buscamos el ID de la relación para mandarla a borrar
     const friendship =
       this.usuarioService.friendsList().find(f => (f.receiver === userId || f.transmitter === userId)) ||
       this.usuarioService.pendingSent().find(f => f.receiver === userId) ||
       this.usuarioService.pendingReceived().find(f => f.transmitter === userId);
 
-    if (friendship && confirm('¿Estás seguro?')) {
-      this.usuarioService.deleteFriendship(friendship.id).subscribe();
+    if (friendship && confirm('¿Estás seguro de que deseas dejar de seguir a este usuario?')) {
+      this.usuarioService.deleteFriendship(friendship.id).subscribe({
+        next: () => this.toastService.success('Has dejado de seguir al usuario'),
+        error: () => this.toastService.error('Error al procesar la solicitud')
+      });
     }
   }
 }

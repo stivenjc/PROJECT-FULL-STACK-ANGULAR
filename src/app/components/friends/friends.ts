@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { Usuario } from '../../services/usuario';
 import { UserCardComponent } from '../user-card/user-card';
 import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { ToastService } from '../../services/toast';
 
 @Component({
   selector: 'app-friends',
@@ -14,6 +15,7 @@ import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 })
 export class FriendsComponent implements OnInit {
   public usuarioService = inject(Usuario);
+  private toastService = inject(ToastService);
   private baseUrl = 'http://127.0.0.1:8000';
 
   currentUserId = Number(localStorage.getItem('user_id'));
@@ -48,6 +50,7 @@ export class FriendsComponent implements OnInit {
       error: (err) => {
         console.error('Error en búsqueda:', err);
         this.loading.set(false);
+        this.toastService.error('Error al realizar la búsqueda');
       }
     });
   }
@@ -65,6 +68,22 @@ export class FriendsComponent implements OnInit {
     } else {
       this.users.set([]);
       this.loading.set(false);
+    }
+  }
+
+  acceptRequest(id: number) {
+    this.usuarioService.acceptFriendRequest(id).subscribe({
+      next: () => this.toastService.success('Solicitud de seguimiento aceptada'),
+      error: () => this.toastService.error('No se pudo aceptar la solicitud')
+    });
+  }
+
+  rejectRequest(id: number, confirmMessage: string = '¿Estás seguro?') {
+    if (confirm(confirmMessage)) {
+      this.usuarioService.deleteFriendship(id).subscribe({
+        next: () => this.toastService.info('Solicitud eliminada'),
+        error: () => this.toastService.error('Error al procesar la solicitud')
+      });
     }
   }
 
