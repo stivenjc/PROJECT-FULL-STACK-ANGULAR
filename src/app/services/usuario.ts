@@ -159,7 +159,7 @@ export class Usuario {
   }
 
   followUser(userId: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}friend/follow/${userId}/`, {
+    return this.http.get<any>(`${this.apiUrl}friend/fallow/${userId}/`, {
       headers: this.getHeaders(),
     });
   }

@@ -6,11 +6,104 @@
   background-image: linear-gradient(to top right, #facc15, #ef4444, #9333ea);
 }
 
+
+/* 📝 SDD: Estilos para el input de edición de nombre */
+input[formControlName],
+input.ng-untouched,
+input {
+  transition: all 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  /* blue-500 */
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  /* ring-blue-500/10 */
+}
+
+.animate-in {
+  animation: animate-in 0.3s ease-out;
+}
+
+@keyframes animate-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bio-textarea {
+  resize: none;
+  min-height: 80px;
+  line-height: 1.5;
+}
+
+.bio-textarea::placeholder {
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
 .group img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: filter 0.2s ease;
+}
+
+/* 📝 SDD: Social Impact Rank Styles */
+.rank-badge {
+  letter-spacing: 0.05em;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.rank-gray {
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.rank-blue {
+  background-color: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+}
+
+.rank-purple {
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  color: #7c3aed;
+  border: 1px solid #ddd6fe;
+}
+
+.rank-gold {
+  background: linear-gradient(45deg, #fffbeb 0%, #fef3c7 100%);
+  color: #b45309;
+  border: 1px solid #fde68a;
+  animation: pulse-gold 2s infinite;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
+}
+
+@keyframes pulse-gold {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4);
+  }
+
+  70% {
+    transform: scale(1.03);
+    box-shadow: 0 0 0 6px rgba(251, 191, 36, 0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0);
+  }
 }
 
 .group:hover img {

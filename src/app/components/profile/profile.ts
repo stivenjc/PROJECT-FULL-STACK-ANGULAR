@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
 import { Usuario } from '../../services/usuario';
 import { PostService } from '../../services/posts';
 import { Comments } from '../comments/comments';
@@ -11,7 +11,7 @@ import { ToastService } from '../../services/toast';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, Comments, Likes],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, Comments, Likes],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
@@ -39,17 +39,17 @@ export class ProfileComponent implements OnInit {
     if (userId === this.currentUserId) return 'is_me';
 
     // Verificar si son amigos (siguiendo)
-    const isFriend = this.usuarioService.friendsList().some(f =>
-      f.receiver === userId && f.transmitter === this.currentUserId
-    );
+    const isFriend = this.usuarioService
+      .friendsList()
+      .some((f) => f.receiver === userId && f.transmitter === this.currentUserId);
     if (isFriend) return 'following';
 
     // Verificar si hay solicitud recibida
-    const hasReceived = this.usuarioService.pendingReceived().some(f => f.transmitter === userId);
+    const hasReceived = this.usuarioService.pendingReceived().some((f) => f.transmitter === userId);
     if (hasReceived) return 'pending_received';
 
     // Verificar si hay solicitud enviada
-    const hasSent = this.usuarioService.pendingSent().some(f => f.receiver === userId);
+    const hasSent = this.usuarioService.pendingSent().some((f) => f.receiver === userId);
     if (hasSent) return 'pending_sent';
 
     return 'none';
@@ -59,6 +59,16 @@ export class ProfileComponent implements OnInit {
   selectedPost = signal<any>(null);
   isEditing = signal(false);
   editPostText = '';
+
+  // 📝 SDD: Edición de Nombre
+  isEditingName = signal(false);
+  nameControl = new FormControl('', [Validators.required, Validators.minLength(3)]);
+  isEditingBio = signal(false);
+  bioControl = new FormControl('', [
+    Validators.required,
+    Validators.minLength(3),
+    Validators.maxLength(100),
+  ]);
 
   ngOnInit() {
     // Sincronizamos el estado social al entrar
@@ -77,7 +87,7 @@ export class ProfileComponent implements OnInit {
         this.loadCurrentUserData();
         this.loadPosts(localStorage.getItem('user_id'));
       }
-    })
+    });
   }
 
   loadCurrentUserData() {
@@ -121,7 +131,7 @@ export class ProfileComponent implements OnInit {
           this.toastService.success(`Ahora sigues a ${this.user()?.username}`);
         }
       },
-      error: () => this.toastService.error('Errror al intentar procesar la solicitud')
+      error: () => this.toastService.error('Errror al intentar procesar la solicitud'),
     });
   }
 
@@ -130,17 +140,20 @@ export class ProfileComponent implements OnInit {
     if (friendship) {
       this.usuarioService.acceptFriendRequest(friendship.id).subscribe({
         next: () => this.toastService.success('Solicitud confirmada'),
-        error: () => this.toastService.error('Error al aceptar la solicitud')
+        error: () => this.toastService.error('Error al aceptar la solicitud'),
       });
     }
   }
 
   cancelOrRemove() {
     const friendship = this.usuarioService.getFriendship(this.user().id);
-    if (friendship && confirm(`¿Estás seguro de que deseas cancelar la relación con ${this.user()?.username}?`)) {
+    if (
+      friendship &&
+      confirm(`¿Estás seguro de que deseas cancelar la relación con ${this.user()?.username}?`)
+    ) {
       this.usuarioService.deleteFriendship(friendship.id).subscribe({
         next: () => this.toastService.info('Relación finalizada'),
-        error: () => this.toastService.error('Error al procesar la cancelación')
+        error: () => this.toastService.error('Error al procesar la cancelación'),
       });
     }
   }
@@ -245,4 +258,88 @@ export class ProfileComponent implements OnInit {
       error: (err) => console.error('Error al actualizar post:', err),
     });
   }
+
+  // 📝 SDD: Métodos de edición de nombre
+  startEditingName() {
+    if (!this.isMyProfile()) return;
+    this.nameControl.setValue(this.user()?.username); // Usamos el username actual como base
+    this.isEditingName.set(true);
+  }
+
+  cancelEditingName() {
+    this.isEditingName.set(false);
+  }
+
+  cancelEditingBio() {
+    this.isEditingBio.set(false);
+  }
+
+  startEditingBio() {
+    if (!this.isMyProfile()) return;
+    this.bioControl.setValue(this.user()?.bio);
+    this.isEditingBio.set(true);
+  }
+
+  saveName() {
+    if (this.nameControl.invalid || !this.isMyProfile()) return;
+
+    const userId = Number(localStorage.getItem('user_id'));
+    const newName = this.nameControl.value;
+
+    this.usuarioService.updateUser(userId, { username: newName }).subscribe({
+      next: (updatedUser) => {
+        this.user.set(updatedUser);
+        this.usuarioService.currentUser.set(updatedUser);
+        this.isEditingName.set(false);
+        this.toastService.success('Perfil actualizado correctamente');
+      },
+      error: (err) => {
+        console.error('Error al actualizar nombre:', err);
+        this.toastService.error('Salió un error durante la actualización');
+      },
+    });
+  }
+
+  saveBio() {
+    if (this.bioControl.invalid || !this.isMyProfile()) return;
+
+    const userId = Number(localStorage.getItem('user_id'));
+    const bio = this.bioControl.value;
+
+    this.usuarioService.updateUser(userId, { bio: bio }).subscribe({
+      next: (updatedUser) => {
+        this.user.set(updatedUser);
+        this.usuarioService.currentUser.set(updatedUser);
+        this.isEditingBio.set(false);
+        this.toastService.success('Perfil actualizado correctamente');
+      },
+      error: (err) => {
+        console.error('Error al actualizar la bio:', err);
+        this.toastService.error('Salió un error durante la actualización');
+      },
+    });
+  }
+
+  totalLikes = computed(() => {
+    var totalLikes = 0;
+    for (const post of this.myPosts()) {
+      totalLikes += post.likes_count;
+    }
+    return totalLikes
+  });
+
+  impactScore = computed(() => {
+    // 📝 SDD: Usamos Math.round para cumplir con la Spec de números enteros
+    const score = (this.totalLikes() / Math.max(1, this.myPosts().length)) * this.followersCount();
+    return Math.round(score);
+  });
+  userRank = computed(() => {
+    const score = this.impactScore();
+    // 📝 SDD: Condiciones contiguas para evitar errores de "null"
+    if (score <= 20) return { label: 'Explorador', color: 'gray', icon: '🥚' };
+    if (score <= 100) return { label: 'Creador', color: 'blue', icon: '🌱' };
+    if (score <= 500) return { label: 'Influencer', color: 'purple', icon: '🔥' };
+
+    return { label: 'Leyenda', color: 'gold', icon: '👑' };
+  });
 }
