@@ -7,7 +7,8 @@ import { Observable } from 'rxjs';
 })
 export class PostService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://127.0.0.1:8000/';
+  private apiUrl = 'https://project-full-stack-django.onrender.com/';
+
 
   constructor() { }
 

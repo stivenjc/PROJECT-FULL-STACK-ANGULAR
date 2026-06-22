@@ -7,7 +7,8 @@ import { Observable, forkJoin, finalize } from 'rxjs';
 })
 export class Usuario {
   private http = inject(HttpClient);
-  private apiUrl = 'http://127.0.0.1:8000/';
+  private apiUrl = 'https://project-full-stack-django.onrender.com/';
+
 
   pendingRequestsCount = signal<number>(0);
   currentUser = signal<any>(null);
@@ -73,7 +74,8 @@ export class Usuario {
   getPhotoUrl(photo: string | null): string {
     if (!photo) return 'https://ui-avatars.com/api/?name=User';
     if (photo.startsWith('http')) return photo;
-    return `http://127.0.0.1:8000${photo.startsWith('/') ? '' : '/'}${photo}`;
+    const host = 'https://project-full-stack-django.onrender.com';
+    return `${host}${photo.startsWith('/') ? '' : '/'}${photo}`;
   }
 
   registrarUsuario(dataUser: any): Observable<any> {

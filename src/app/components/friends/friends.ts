@@ -16,7 +16,8 @@ import { ToastService } from '../../services/toast';
 export class FriendsComponent implements OnInit {
   public usuarioService = inject(Usuario);
   private toastService = inject(ToastService);
-  private baseUrl = 'http://127.0.0.1:8000';
+  private baseUrl = 'https://project-full-stack-django.onrender.com';
+
 
   currentUserId = Number(localStorage.getItem('user_id'));
 
