@@ -16,6 +16,7 @@ import { Likes } from '../likes/likes';
 })
 export class Posts implements OnInit, OnDestroy {
   posts = signal<any[]>([]);
+  isLoading = signal<boolean>(true);
   private postService = inject(PostService);
   public usuarioService = inject(Usuario);
   private pollingInterval: any;
@@ -30,9 +31,9 @@ export class Posts implements OnInit, OnDestroy {
   editPostImagePreview: string | null = null;
 
   ngOnInit() {
-    this.loadPosts();
+    this.loadPosts(true);
     this.pollingInterval = setInterval(() => {
-      this.loadPosts();
+      this.loadPosts(false);
     }, 30000);
   }
 
@@ -42,7 +43,10 @@ export class Posts implements OnInit, OnDestroy {
     }
   }
 
-  loadPosts() {
+  loadPosts(isInitial = false) {
+    if (isInitial) {
+      this.isLoading.set(true);
+    }
     this.postService.getPosts(true).subscribe({
       next: (data) => {
         const result = Array.isArray(data) ? data : (data.results ?? []);
@@ -56,9 +60,11 @@ export class Posts implements OnInit, OnDestroy {
             };
           });
         });
+        this.isLoading.set(false);
       },
       error: (err) => {
         console.error('Error cargando los posts:', err);
+        this.isLoading.set(false);
       },
     });
   }
