@@ -40,32 +40,32 @@ export class PostService {
 
   likePost(dataLike: any): Observable<any> {
     return this.http.post<any>(
-      `${this.apiUrl}/likes/`,
+      `${this.apiUrl}likes/`,
       dataLike,
       { headers: this.getHeaders() },
     );
   }
 
   disLikePost(postId: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/likes/delete-by-post/${postId}/`, {
+    return this.http.delete<any>(`${this.apiUrl}likes/delete-by-post/${postId}/`, {
       headers: this.getHeaders()
     });
   }
 
   commentPost(dataComment: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/coment/`, dataComment, {
+    return this.http.post<any>(`${this.apiUrl}coment/`, dataComment, {
       headers: this.getHeaders(),
     });
   }
 
   updateComment(commentId: number, data: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/coment/${commentId}/`, data, {
+    return this.http.put<any>(`${this.apiUrl}coment/${commentId}/`, data, {
       headers: this.getHeaders(),
     });
   }
 
   deleteComment(commentId: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/coment/${commentId}/`, {
+    return this.http.delete<any>(`${this.apiUrl}coment/${commentId}/`, {
       headers: this.getHeaders(),
     });
   }
